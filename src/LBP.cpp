@@ -204,7 +204,7 @@ namespace lbp{
 		strcat(ModelDir, ".yml");
 	}
 
-	void getEigen(){
+	void LBPSVM::getEigen(){
 		Mat hist;
 	    std::vector<int> vec;
 	    LoadSample(hist, vec, 0);
@@ -269,6 +269,7 @@ namespace lbp{
 		Mat trainData, labels;
 		std::vector<int> vec;
 		LoadSample(trainData, vec, 0);
+		trainData = trainData * EigenMat.t();
 		labels = Mat(vec);
 		printf("Training SVM classifier...\n");
 		SVM->trainAuto(trainData, ml::ROW_SAMPLE, labels);
@@ -283,6 +284,7 @@ namespace lbp{
 		Mat testData;
 		std::vector<int> vec;
 		LoadSample(testData, vec, 1);
+		testData = testData * EigenMat.t();
 		printf("Validating...\n");
 		int r = testData.rows, c = testData.cols;
 		int np = pow(100/csize, 2) * extractor.getNumPattern();
@@ -318,7 +320,8 @@ namespace lbp{
 		int r = lbpf.rows, c = lbpf.cols;
 		int np = pow(100 / csize, 2) * extractor.getNumPattern(), pos = 0;
 		for (int j = 0; j < c / np; ++j) {
-			float response = SVC->predict(lbpf(Rect(j*np, 0, np, 1)));
+			Mat hist = lbpf(Rect(j*np, 0, np, 1)) * EigenMat.t();
+			float response = SVC->predict(hist);
 			if (response == 1.0)
 				pos += 1;
 		}
@@ -333,7 +336,8 @@ namespace lbp{
         float response;
         std::vector<int> res;
         for(int i = 0; i < bsize; ++i){
-            response = SVC->predict(imgs(Rect(0, i, col, 1)));
+			Mat hist = imgs(Rect(0, i, col, 1)) * EigenMat.t();
+            response = SVC->predict(hist);
             if(response == 1.0)
                 res.push_back(1);
             else  res.push_back(0);
@@ -350,7 +354,8 @@ namespace lbp{
     	LBP A(8, radius, csize);
 		cv::Mat dst;
 		A.RILBP(img, dst);
-		float response = SVC->predict(A.RILBPHistogram(dst));
+		Mat hist = A.RILBPHistogram(dst) * EigenMat.t();
+		float response = SVC->predict(hist);
 		//printf("%.2f\n", response);
 		return response;
 	}
@@ -369,7 +374,8 @@ namespace lbp{
 		int np = pow(100 / csize, 2) * extractor.getNumPattern(), pos = 0;
 		std::vector<cv::Rect> smkregions;
 		for (int j = 0; j < c / np; ++j) {
-			float response = SVC->predict(lbpf(Rect(j*np, 0, np, 1)));
+			Mat hist = lbpf(Rect(j*np, 0, np, 1)) * EigenMat.t();
+			float response = SVC->predict(hist);
 			if (response == 1.0) {
 				pos += 1;
 				//cv::Point pt1((j%nblocks)*100/nblocks, 100*j/(nblocks*nblocks));
