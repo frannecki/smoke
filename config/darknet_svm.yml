@@ -1,0 +1,40 @@
+subscribers:
+
+  camera_reading:
+    topic: /camera/rgb/image_rect_color
+    queue_size: 1
+
+  alarm_sub:
+    topic: /kinectdev/smoke/alarm
+    queue_size: 1
+
+  bbox_sub:
+    topic: /darknet_ros/bounding_boxes
+    queue_size: 1
+
+  img_bbox_sub:
+    topic: /darknet_ros/image_bounding_boxes
+
+services:
+
+  image_svm_srv:
+    name: /kinectdev/smoke/smoke_svm_srv
+
+  image_srv:
+    name: /kinectdev/smoke/smoke_srv
+
+  image_darknet_svm_srv:
+    name: /kinectdev/smoke/smoke_darknet_svm_srv
+
+
+publishers:
+
+  alarm_pub:
+    topic: /kinectdev/smoke/alarm
+    queue_size: 1
+    latch: false
+
+  image_pub:
+    topic: /kinedctev/smoke/img_adapted
+    queue_size: 1
+    latch: false

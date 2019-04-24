@@ -1,0 +1,4 @@
+int32[] frame
+int32[] dim
+---
+int64 res
