@@ -202,6 +202,8 @@ namespace lbp{
 		strcat(ModelDir, "_");
 		strcat(ModelDir, radiusstr);
 		strcat(ModelDir, ".yml");
+
+		getEigen();
 	}
 
 	void LBPSVM::getEigen(){

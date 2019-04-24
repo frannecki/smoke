@@ -4,7 +4,7 @@ ROS package for smoke detection and recognition with Turtlebot.
 ## Prerequisites
 * ROS kinetic
 * [darknet_ros](https://github.com/leggedrobotics/darknet_ros)
-* OpencV (>=3.3.0)
+* OpenCV (>=3.3.0)
 
 ## Usage
 * launch webcam using [usb_cam](https://github.com/ros-drivers/usb_cam) package
