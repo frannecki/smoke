@@ -26,9 +26,9 @@ void darknet_svm::init(){
     nh_.param("subscribers/img_bbox_sub/topic", bboxImgSub, std::string("/darknet_ros/image_bounding_boxes"));
     nh_.param("subscribers/img_bbox_sub/queue_size", bboxImgSub_qs, 1);
 
-    nh_.param("publishers/img_sub/topic", alarmPub, std::string("/kinectdev/smoke/alarm"));
-    nh_.param("publishers/img_sub/queue_size", alarmPub_qs, 1);
-    nh_.param("publishers/img_bbox_sub/latch", alarmPub_latch, false);
+    nh_.param("publishers/alarm_pub/topic", alarmPub, std::string("/kinectdev/smoke/alarm"));
+    nh_.param("publishers/alarm_pub/queue_size", alarmPub_qs, 1);
+    nh_.param("publishers/alarm_pub/latch", alarmPub_latch, false);
     alarm_pub = nh_.advertise<std_msgs::Bool>(alarmPub, alarmPub_qs, alarmPub_latch);
 
     nh_.param("services/img_bbox_sub/img_darknet_svm_srv/name", darknetSVMSrv, std::string("/kinectdev/smoke/smoke_darknet_svm_srv"));

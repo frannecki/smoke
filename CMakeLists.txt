@@ -32,6 +32,11 @@ add_message_files(
   BboxImage.msg
 )
 
+add_action_files(
+  FILES
+  Alarm.action
+)
+
 generate_messages(
   DEPENDENCIES
   smoke

@@ -1,0 +1,8 @@
+# define goal
+int32 order
+---
+# define result
+int32 res
+---
+# define feedback
+float32 fback

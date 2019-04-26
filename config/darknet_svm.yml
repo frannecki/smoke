@@ -38,3 +38,8 @@ publishers:
     topic: /kinedctev/smoke/img_adapted
     queue_size: 1
     latch: false
+
+actions:
+
+  kobuki_alarm:
+    name: /kinectdev/smoke/kobuki_alarm
