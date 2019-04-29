@@ -22,18 +22,20 @@
 #include <boost/thread/locks.hpp>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 namespace darknet_svm{
 class darknet_svm{
 private:
+    float ovthresh;
     // shared variables
     smoke::BoundingBoxes bboxes;
-    std::vector<smoke::BoundingBox> bounding_boxes;
+    std::vector<smoke::BoundingBox> bounding_boxes, bounding_boxes_u;
 
     cv_bridge::CvImage img_bridge;
     sensor_msgs::Image imgs;
+    sensor_msgs::Image img_srv;
     std_msgs::Header header;
-    std::vector<sensor_msgs::Image> imgsVec;
     
     cv::Mat img, obj;
     cv::Mat objLBP, tmp;
@@ -45,7 +47,7 @@ private:
     std_msgs::Bool alarm;
 
     // mutex and thread
-    boost::shared_mutex mutexImgsStatus;
+    boost::shared_mutex mutexImgsStatus;  // for image and bbox messages
     boost::shared_mutex mutexNodeStatus;
     boost::shared_mutex mutexAlarmStatus;
     boost::shared_mutex mutexSrvStatus;

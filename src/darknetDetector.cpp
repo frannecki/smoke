@@ -36,6 +36,7 @@ void darknet_svm::init(){
 
     count = 0;
     alarm.data = false;
+    ovthresh = .7;
 
     img_bbox_sub = nh_.subscribe<smoke::BboxImage>(bboxImgSub, bboxImgSub_qs, &darknet_svm::bboxImgCallback, this);
     int mainThreadStatus = pthread_create(&mainThread, NULL, workInThread, NULL);
@@ -43,7 +44,7 @@ void darknet_svm::init(){
 
 void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
     bboxes = (*msg).bboxes;
-/*
+    
     if(!imgs){
         boost::unique_lock<boost::shared_mutex> lockImgCallback(mutexImgsStatus);
         subscriberStatus = false;
@@ -52,8 +53,10 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
         boost::unique_lock<boost::shared_mutex> lockImgCallback(mutexImgsStatus);
         subscriberStatus = false;
     }
-*/
+
     bounding_boxes = bboxes.bounding_boxes;
+    // start to modify shared variables imgs, image_bridge, img_srv and bounding_boxes_u
+    boost::unique_lock<boost::shared_mutex> lockImgCallback(mutexImgsStatus);
     imgs = (*msg).img;
     try{
         img = cv_bridge::toCvCopy(imgs, sensor_msgs::image_encodings::TYPE_8UC3)->image;
@@ -63,18 +66,34 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
         return;
     }
     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
-    boost::unique_lock<boost::shared_mutex> lockImgCallback(mutexImgsStatus);
+    bounding_boxes_u.clear();
+
+    header.seq = ++count;   // user defined counter
+    header.stamp = ros::Time::now();   // time
+    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::TYPE_8UC1, img);
+    img_bridge.toImageMsg(img_srv);
+    // select reasonable bounding boxes
+    if(!bounding_boxes.empty()){
+        bounding_boxes_u.push_back(bounding_boxes[i]);
+    }
     for(int i = 0; i < bounding_boxes.size(); ++i){
-        int xmin = bounding_boxes[i].xmin;
-        int ymin = bounding_boxes[i].ymin;
-        int width = bounding_boxes[i].xmax - bounding_boxes[i].xmin;
-        int height = bounding_boxes[i].ymax - bounding_boxes[i].ymin;
-        obj = img(cv::Rect(xmin, ymin, width, height));
-        header.seq = ++count;   // user defined counter
-        header.stamp = ros::Time::now();   // time
-        img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::TYPE_8UC1, obj);
-        img_bridge.toImageMsg(imgs);
-        imgsVec.push_back(imgs);
+        for(int j = i+1; j < bounding_boxes.size(); ++j){
+            // rid of bboxes with high overlap
+            int xmin_1 = int xmin = bounding_boxes[i].xmin;
+            int xmax_1 = int xmin = bounding_boxes[i].xmax;
+            int ymin_1 = int xmin = bounding_boxes[i].ymin;
+            int ymax_1 = int xmin = bounding_boxes[i].ymax;
+            int xmin_2 = int xmin = bounding_boxes[j].xmin;
+            int xmax_2 = int xmin = bounding_boxes[j].xmax;
+            int ymin_2 = int xmin = bounding_boxes[j].ymin;
+            int ymax_2 = int xmin = bounding_boxes[j].ymax;
+            int x_min = std::max(xmin_1, xmin_2);
+            int y_min = std::max(ymin_1, ymin_2);
+            int x_max = std::min(xmax_1, xmax_2);
+            int y_max = std::min(ymax_1, ymax_2);
+            float ovlap = static_cast<float>((xmax-xmin)*(ymax-ymin)) / static_cast<float>((xmax-xmin)*(ymax-ymin) + (xmax-xmin)*(ymax-ymin));
+            if(ovlap < ovthresh){}
+        }
     }
 }
 
@@ -82,7 +101,8 @@ void *darknet_svm::callSVMInThread(void* param){
     darknet_svm *ds = (darknet_svm*)param;
     {
         boost::shared_lock<boost::shared_mutex> lockCallSVM(ds->mutexImgsStatus);
-        ds->svm_srv.request.imgs = std::vector<sensor_msgs::Image>(ds->imgsVec);
+        ds->svm_srv.request.img = img_srv;
+        ds->svm_srv.request.bboxes = bounding_boxes_u;
     }
     if(ds->sc.call(ds->svm_srv)){
         int res = ds->svm_srv.response.res;

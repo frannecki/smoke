@@ -7,6 +7,7 @@
 #include "opencv2/opencv.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
+#include "smoke/BboxImage.h"
 bool svmcallback(smoke::smoke_svm::Request &req, smoke::smoke_svm::Response &response){
     sensor_msgs::Image msg = req.hst;
     int bsize = req.dim;
@@ -21,14 +22,20 @@ bool svmcallback(smoke::smoke_svm::Request &req, smoke::smoke_svm::Response &res
 }
 
 bool darknetsvmcallback(smoke::darknet_svm_node::Request &req, smoke::darknet_svm_node::Response &res){
-    cv::Mat img, tmp, dst;
+    cv::Mat img, obj, tmp, dst;
     lbp::LBPSVM SVM(25, 3);
-    std::vector<sensor_msgs::Image> imgsVec = req.imgs;
-    std::vector<int> resp(imgsVec.size(), 0);
-    for(int i = 0; i < imgsVec.size(); ++i){
-        img = cv_bridge::toCvCopy(imgsVec[i], sensor_msgs::image_encodings::TYPE_8UC1)->image;
-        cv::resize(img, tmp, Size(100, 100));
-        // TODO
+    sensor_msgs::Image = req.img;
+    std::vector<smoke::BoundingBox> bounding_boxes_u = req.bboxes;
+    img_cv = cv_bridge::toCvCopy(imgsVec[i], sensor_msgs::image_encodings::TYPE_8UC1)->image;
+
+    std::vector<int> resp(bounding_boxes.size(), 0);
+    for(int i = 0; i < bounding_boxes.size(); ++i){
+        int xmin = bounding_boxes[i].xmin;
+        int ymin = bounding_boxes[i].ymin;
+        int width = bounding_boxes[i].xmax - bounding_boxes[i].xmin;
+        int height = bounding_boxes[i].ymax - bounding_boxes[i].ymin;
+        obj = img(cv::Rect(xmin, ymin, width, height));
+        cv::resize(obj, tmp, Size(100, 100));
         float response = SVM.Predict(tmp);
         resp.push_back(static_cast<int>(response));
     }
