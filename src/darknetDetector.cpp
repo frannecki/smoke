@@ -37,6 +37,7 @@ void darknet_svm::init(){
     count = 0;
     alarm.data = false;
     ovthresh = .7;
+    subscriberStatus = false;
 
     img_bbox_sub = nh_.subscribe<smoke::BboxImage>(bboxImgSub, bboxImgSub_qs, &darknet_svm::bboxImgCallback, this);
     int mainThreadStatus = pthread_create(&mainThread, NULL, workInThread, NULL);
@@ -51,7 +52,7 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
     }
     else{
         boost::unique_lock<boost::shared_mutex> lockImgCallback(mutexImgsStatus);
-        subscriberStatus = false;
+        subscriberStatus = true;
     }
 
     bounding_boxes = bboxes.bounding_boxes;
@@ -72,13 +73,18 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
     header.stamp = ros::Time::now();   // time
     img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::TYPE_8UC1, img);
     img_bridge.toImageMsg(img_srv);
-    // select reasonable bounding boxes
+    // selecting bounding boxes
     if(!bounding_boxes.empty()){
         bounding_boxes_u.push_back(bounding_boxes[i]);
     }
+    std::vector<int> overlap(bounding_boxes.size(), 0); 
     for(int i = 0; i < bounding_boxes.size(); ++i){
+        if(overlap[i] != 0){
+            bounding_boxes_u.push_back(bounding_boxes[i]);
+            continue;
+        }
         for(int j = i+1; j < bounding_boxes.size(); ++j){
-            // rid of bboxes with high overlap
+            // rid of redundant bboxes
             int xmin_1 = int xmin = bounding_boxes[i].xmin;
             int xmax_1 = int xmin = bounding_boxes[i].xmax;
             int ymin_1 = int xmin = bounding_boxes[i].ymin;
@@ -91,8 +97,12 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
             int y_min = std::max(ymin_1, ymin_2);
             int x_max = std::min(xmax_1, xmax_2);
             int y_max = std::min(ymax_1, ymax_2);
-            float ovlap = static_cast<float>((xmax-xmin)*(ymax-ymin)) / static_cast<float>((xmax-xmin)*(ymax-ymin) + (xmax-xmin)*(ymax-ymin));
-            if(ovlap < ovthresh){}
+            float intersec = static_cast<float>((xmax-xmin)*(ymax-ymin));
+            float uni = static_cast<float>((xmax_1-xmin_1)*(ymax_1-ymin_1) + (xmax_1-xmin_1)*(ymax_1-ymin_1)) = intersec;
+            float ovlap = intersec / uni;
+            if(ovlap > ovthresh){
+                overlap[j] = 1;
+            }
         }
     }
 }
@@ -105,27 +115,39 @@ void *darknet_svm::callSVMInThread(void* param){
         ds->svm_srv.request.bboxes = bounding_boxes_u;
     }
     if(ds->sc.call(ds->svm_srv)){
-        int res = ds->svm_srv.response.res;
+        //int res = ds->svm_srv.response.res;
+        ds->bounding_box_u_response = svm_srv.response.res;
+        
         boost::unique_lock<boost::shared_mutex> lockAlarm(ds->mutexAlarmStatus);
-        if(res == 1){
-            ds->alarm.data = true;
+        int res = 0;
+        for(int i = 0; i < ds->bounding_box_u_response.size(); ++i){
+            res += ds->bounding_box_u_response[i];
         }
-        else{
-            ds->alarm.data = false;
-        }
+        if(res >= 1){ ds->alarm.data = true; }
+        else{ ds->alarm.data = false; }
     }
     else{
-        ROS_ERROR("Failed to call service smoke");
-        ROS_INFO("Waiting for service server to correctly respond...");
-        sleep(1);
+        ds->alarm.data = false;
+        ROS_ERROR("Failed to call service node (svm classifier)");
+        ROS_INFO("Waiting for service server to normally respond...");
+        sleep(0.1);
     }
 }
 
 void *darknet_svm::alarmInThread(void* param){
+    ROS_INFO("Alarm! Smoke occurs.");
     darknet_svm *ds = (darknet_svm*)param;
-    {
-        boost::shared_lock<boost::shared_mutex> lockAlarm(ds->mutexAlarmStatus);
-        ds->alarm_pub.publish(ds->alarm);
+    
+    boost::shared_lock<boost::shared_mutex> lockAlarm(ds->mutexAlarmStatus);
+    ds->alarm_pub.publish(ds->alarm);
+    if(ds->alarm.data == true){
+        int count = 0;
+        for(int i = 0; i < bounding_box_u_response.size(); ++i){
+            if(bounding_box_u_response[i] == 1){
+                ROS_INFO("Position %d: (%d, %d) -> (%d, %d)", ++count, 
+                    bounding_boxes_u[i].xmin, bounding_boxes_u[i].ymin, bounding_boxes_u[i].xmax, bounding_boxes_u[i].ymax);
+            }
+        }
     }
 }
 
@@ -135,18 +157,22 @@ void *darknet_svm::workInThread(void* param){
     pthread_t alarmThread;
 
     while(ros::ok()){
-        if(!ds->isNodeRunning)  break;
-        if(!ds->subscriberStatus)  continue;
+        {
+            boost::shared_lock<boost::shared_mutex> lockNodeStatus(ds->mutexNodeStatus);
+            if(!ds->isNodeRunning)  break;
+        }
+        if(!ds->subscriberStatus){ sleep(0.1); continue; }
         int callSVMThreadStatus = pthread_create(&callSVMThread, NULL, callSVMInThread, NULL);
         if(ds->callSVMThreadStatus != 0){
-            ROS_ERROR("Failed to start callSVMThread");
-            exit(-1);
+            ROS_ERROR("Failed to start thread - callSVMThread");
+            //exit(-1);
+            return;
         }
         
         int alarmThreadStatus = pthread_create(&alarmThread, NULL, alarmInThread, NULL);
         if(alarmThreadStatus != 0){
-            ROS_ERROR("Failed to start alarmThread");
-            exit(-1);
+            ROS_ERROR("Failed to start thread - alarmThread");
+            //exit(-1);
         }
 
         pthread_join(callSVMThread, NULL);

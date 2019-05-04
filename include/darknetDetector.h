@@ -31,6 +31,7 @@ private:
     // shared variables
     smoke::BoundingBoxes bboxes;
     std::vector<smoke::BoundingBox> bounding_boxes, bounding_boxes_u;
+    std::vector<int> bounding_box_u_response;
 
     cv_bridge::CvImage img_bridge;
     sensor_msgs::Image imgs;
@@ -52,6 +53,7 @@ private:
     boost::shared_mutex mutexAlarmStatus;
     boost::shared_mutex mutexSrvStatus;
     boost::shared_mutex mutexSubscriberStatus;
+    boost::shared_mutex mutexBboxesUStatus;
     pthread_t mainThread;
     int callSVMThreadStatus;
     int alarmThreadStatus;

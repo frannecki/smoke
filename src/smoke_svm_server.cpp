@@ -25,7 +25,7 @@ bool darknetsvmcallback(smoke::darknet_svm_node::Request &req, smoke::darknet_sv
     cv::Mat img, obj, tmp, dst;
     lbp::LBPSVM SVM(25, 3);
     sensor_msgs::Image = req.img;
-    std::vector<smoke::BoundingBox> bounding_boxes_u = req.bboxes;
+    std::vector<smoke::BoundingBox> bounding_boxes = req.bboxes;
     img_cv = cv_bridge::toCvCopy(imgsVec[i], sensor_msgs::image_encodings::TYPE_8UC1)->image;
 
     std::vector<int> resp(bounding_boxes.size(), 0);
@@ -40,6 +40,8 @@ bool darknetsvmcallback(smoke::darknet_svm_node::Request &req, smoke::darknet_sv
         resp.push_back(static_cast<int>(response));
     }
     
+    res.res = resp;
+    /*
     int countpos = 0;
     for(int i = 0; i < resp.size(); ++i){
         countpos += resp[i];
@@ -47,6 +49,7 @@ bool darknetsvmcallback(smoke::darknet_svm_node::Request &req, smoke::darknet_sv
     if(countpos >= resp.size()/5){
         res.res = 1;
     }
+    */
     return true;
 }
 
