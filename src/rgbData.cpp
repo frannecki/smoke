@@ -4,8 +4,8 @@ rgbData::rgbData(int *vshape, cv::Mat& img):it(n)
 {
     shape = vshape;
     rgbMat = &img;
-    n.param("subscribers/camera_reading/topic", imgSrc, std::string("/camera/rgb/image_rect_color"));
-    n.param("subscribers/camera_reading/queue_size", qsize, 1);
+    n.param("/smoke/subscribers/camera_reading/topic", imgSrc, std::string("/camera/rgb/image_rect_color"));
+    n.param("/smoke/subscribers/camera_reading/queue_size", qsize, 1);
     //rgbSub = it.subscribe("/camera/rgb/image_rect_color", qsize, &rgbData::imgcallback, this);
     rgbSub = it.subscribe("/camera/rgb/image_rect_color", qsize, &rgbData::imgcallback, this);
 }

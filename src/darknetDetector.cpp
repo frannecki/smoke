@@ -47,10 +47,14 @@ void darknet_svm::init(){
     subscriberStatus = false;
 
     img_bbox_sub = nh_.subscribe<smoke::BboxImage>(bboxImgSub, bboxImgSub_qs, &darknet_svm::bboxImgCallback, this);
+    //ros::spinOnce();
     int mainThreadStatus = pthread_create(&mainThread, NULL, workInThread, (void*)this);
+    if(mainThreadStatus != 0)
+        ROS_ERROR("Failed to start thread (mainThread)");
 }
 
 void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
+    ROS_INFO("Subscriber (img_bbox_sub) callback.");
     bboxes = (*msg).bboxes;
     bounding_boxes = bboxes.bounding_boxes;
     // start to modify shared variables imgs, image_bridge, img_srv and bounding_boxes_u
@@ -68,11 +72,15 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
         subscriberStatus = true;
     }
     else{
-        boost::unique_lock<boost::shared_mutex> lockSubscriber(mutexSubscriberStatus);
-        subscriberStatus = false;
+        {
+            boost::unique_lock<boost::shared_mutex> lockSubscriber(mutexSubscriberStatus);
+            subscriberStatus = false;
+            ROS_ERROR("Warning: Invalid image!");
+        }
         sleep(1);
         return;
     }
+    ROS_INFO("Received an image along with %lu bounding boxes", bounding_boxes.size());
     img = img_bridge_sub->image.clone();
     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
     bounding_boxes_u.clear();
@@ -159,6 +167,7 @@ void *darknet_svm::alarmInThread(void* param){
 }
 
 void *darknet_svm::workInThread(void* param){
+    ROS_INFO("[Thread] mainThread running.");
     darknet_svm *ds = (darknet_svm*)param;
     pthread_t callSVMThread;
     pthread_t alarmThread;

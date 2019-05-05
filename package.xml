@@ -2,8 +2,8 @@
 <package format="2">
   <name>smoke</name>
   <version>0.0.0</version>
-  <description>The smoke package</description>
-  <maintainer email="fllauren@outlook.com">frankW</maintainer>
+  <description>An ROS package</description>
+  <maintainer email="fllauren@outlook.com">FrankW</maintainer>
   <license>BSD</license>
 
 
@@ -31,11 +31,4 @@
   <exec_depend>image_transport</exec_depend>
   <exec_depend>actionlib</exec_depend>
   <exec_depend>actionlib_msgs</exec_depend>
-
-
-  <!-- The export tag contains other, unspecified, tags -->
-  <export>
-    <!-- Other tools can request additional information be placed here -->
-
-  </export>
 </package>
