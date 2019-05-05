@@ -1,6 +1,10 @@
 #include "darknetDetector.h"
 
 namespace darknet_svm{
+bool cmp_by_prob(const smoke::BoundingBox& bbox1, const smoke::BoundingBox& bbox2){
+    return bbox1.probability > bbox2.probability;
+}
+
 darknet_svm::darknet_svm(ros::NodeHandle nh): nh_(nh){
     init();
 };
@@ -75,7 +79,8 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
     img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::TYPE_8UC1, img);
     img_bridge.toImageMsg(img_srv);
     // selecting bounding boxes
-    std::vector<int> overlap(bounding_boxes.size(), 0); 
+    std::vector<int> overlap(bounding_boxes.size(), 0);
+    std::sort(bounding_boxes.begin(), bounding_boxes.end(), cmp_by_prob);
     for(int i = 0; i < bounding_boxes.size(); ++i){
         if(overlap[i] != 0){
             bounding_boxes_u.push_back(bounding_boxes[i]);
