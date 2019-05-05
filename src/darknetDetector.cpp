@@ -64,6 +64,7 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
     if(!img_bridge_sub){
         boost::unique_lock<boost::shared_mutex> lockImgCallback(mutexImgsStatus);
         subscriberStatus = false;
+        sleep(1);
         return;
     }
     else{
@@ -108,6 +109,7 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
             }
         }
     }
+    sleep(1);
 }
 
 void *darknet_svm::callSVMInThread(void* param){
@@ -133,7 +135,7 @@ void *darknet_svm::callSVMInThread(void* param){
         ds->alarm.data = false;
         ROS_ERROR("Failed to call service node (svm classifier)");
         ROS_INFO("Waiting for service server to normally respond...");
-        sleep(0.1);
+        sleep(0.5);
     }
 }
 
@@ -164,7 +166,7 @@ void *darknet_svm::workInThread(void* param){
             boost::shared_lock<boost::shared_mutex> lockNodeStatus(ds->mutexNodeStatus);
             if(!ds->isNodeRunning)  break;
         }
-        if(!ds->subscriberStatus){ sleep(0.1); continue; }
+        if(!ds->subscriberStatus){ sleep(0.5); continue; }
         int callSVMThreadStatus = pthread_create(&callSVMThread, NULL, callSVMInThread, NULL);
         if(ds->callSVMThreadStatus != 0){
             ROS_ERROR("Failed to start thread - callSVMThread");
