@@ -24,9 +24,9 @@ bool svmcallback(smoke::smoke_svm::Request &req, smoke::smoke_svm::Response &res
 bool darknetsvmcallback(smoke::darknet_svm_node::Request &req, smoke::darknet_svm_node::Response &res){
     cv::Mat img, obj, tmp, dst;
     lbp::LBPSVM SVM(25, 3);
-    sensor_msgs::Image = req.img;
-    std::vector<smoke::BoundingBox> bounding_boxes = req.bboxes;
-    img_cv = cv_bridge::toCvCopy(imgsVec[i], sensor_msgs::image_encodings::TYPE_8UC1)->image;
+    sensor_msgs::Image imgs = req.img;
+    std::vector<smoke::BoundingBox> bounding_boxes = req.bboxes.bounding_boxes;
+    img = cv_bridge::toCvCopy(imgs, sensor_msgs::image_encodings::TYPE_8UC1)->image.clone();
 
     std::vector<int> resp(bounding_boxes.size(), 0);
     for(int i = 0; i < bounding_boxes.size(); ++i){

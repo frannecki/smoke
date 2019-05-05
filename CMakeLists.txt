@@ -17,6 +17,8 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
 )
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../devel/include)
+
 add_service_files(
   FILES
   smoke.srv
@@ -27,6 +29,7 @@ add_service_files(
 
 add_message_files(
   FILES
+  alarm.msg
   BoundingBox.msg
   BoundingBoxes.msg
   BboxImage.msg
@@ -69,7 +72,6 @@ set(THREADS_USE_PTHREADS_WIN32 true)
     include_directories(. ${THREADS_PTHREADS_INCLUDE_DIR})
     include_directories(${OpenCV_INCLUDE_DIRS})
     include_directories(${Boost_INCLUDE_DIRS})
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../devel/include)
     include_directories(${OpenCV_INCLUDE_DIRS})
     link_directories(${OpenCV_LIBRARY_DIR})
 

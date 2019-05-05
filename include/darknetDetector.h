@@ -30,10 +30,12 @@ private:
     float ovthresh;
     // shared variables
     smoke::BoundingBoxes bboxes;
+    //smoke::BoundingBoxes bounding_boxes, bounding_boxes_u;
     std::vector<smoke::BoundingBox> bounding_boxes, bounding_boxes_u;
     std::vector<int> bounding_box_u_response;
 
     cv_bridge::CvImage img_bridge;
+    cv_bridge::CvImagePtr img_bridge_sub;
     sensor_msgs::Image imgs;
     sensor_msgs::Image img_srv;
     std_msgs::Header header;

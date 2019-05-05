@@ -1,4 +1,4 @@
 sensor_msgs/Image img
-BoundingBboxes bboxes
+BoundingBoxes bboxes
 ---
-int32 res
+int32[] res

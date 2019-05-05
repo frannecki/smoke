@@ -1,1 +1,1 @@
-bool64 alarm
+bool alarm
