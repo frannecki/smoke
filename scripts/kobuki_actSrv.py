@@ -41,7 +41,6 @@ class kobuki_actSrv(object):
 if __name__ == '__main__':
     rospy.init_node('kobuki_actSrv', anonymous=True)
     name = rospy.get_param('/smoke/actions/kobuki_alarm/name')
-    print(name)
     kobuki_actSrv(name)
     #kobuki_actSrv('/kinectdev/smoke/kobukiAlarm')
     rospy.spin()
