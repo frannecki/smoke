@@ -9,7 +9,7 @@
 
   <!--include freenect.launch-->
   <!--include file="$(find freenect_launch)/launch/examples/freenect-ns.launch"></include-->
-  <!--include file="$(find freenect_launch)/launch/examples/freenect-registered-xyzrgb.launch"></include>-->
+  <include file="$(find freenect_launch)/launch/examples/freenect-registered-xyzrgb.launch"></include>
   
   <!--darknet_detetor-->
   <node
