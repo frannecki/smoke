@@ -8,28 +8,37 @@
   <rosparam command="load" ns="smoke" file="$(arg ros_param_file)"/>
 
   <!--include freenect.launch-->
-    <!--include file="$(find freenect_launch)/launch/examples/freenect-ns.launch"></include-->
-    <include file="$(find freenect_launch)/launch/examples/freenect-registered-xyzrgb.launch"></include>
+  <!--include file="$(find freenect_launch)/launch/examples/freenect-ns.launch"></include-->
+  <!--include file="$(find freenect_launch)/launch/examples/freenect-registered-xyzrgb.launch"></include>-->
   
   <!--darknet_detetor-->
   <node
     pkg="smoke"
     type="darknet_detector"
     name="darknet_detector_node"
-    required=true
+    output="screen"
+    required="true"
   />
 
   <node
     pkg="smoke"
+    type="kobuki_actSrv.py"
+    name="kobuki_action"
+    output="screen"
+    required="true"
+  />
+
+  <!--<node
+    pkg="smoke"
     type="smoke_svm_client"
     name="smoke_svm_client_node"
-    required=true
+    required="true"
   />
 
   <node
     pkg="smoke"
     type="smoke_svm_server"
     name="smoke_svm_server_node"
-  />
+  />-->
 
 </launch>

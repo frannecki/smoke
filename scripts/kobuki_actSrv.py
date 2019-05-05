@@ -11,7 +11,6 @@ roslib.load_manifest('smoke')
 
 class kobuki_actSrv(object):
     def __init__(self, name):
-        rospy.init_node('kobuki_actSrv')
         self._name = name
         self.server = actionlib.SimpleActionServer(self._name, smoke.msg.AlarmAction, 
             execute_cb=self.kobukialarmcallback, auto_start=False)
@@ -40,7 +39,9 @@ class kobuki_actSrv(object):
             rospy.loginfo('{0} Complete: {1}'.format(self._name, self._res.res))
 
 if __name__ == '__main__':
-    name = rospy.get_param("actions/kobuki_alarm/name")
+    rospy.init_node('kobuki_actSrv', anonymous=True)
+    name = rospy.get_param('/smoke/actions/kobuki_alarm/name')
+    print(name)
     kobuki_actSrv(name)
     #kobuki_actSrv('/kinectdev/smoke/kobukiAlarm')
     rospy.spin()

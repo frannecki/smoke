@@ -16,6 +16,8 @@
 //#include "LBP.h"
 
 // CXX
+#include <stdlib.h>
+#include <unistd.h>
 #include <chrono>
 #include <pthread.h>
 #include <boost/thread.hpp>
@@ -71,10 +73,8 @@ private:
     ros::ServiceClient sc;
 
     int count;
-public:
-    darknet_svm(ros::NodeHandle nh);
-    ~darknet_svm();
-    void init();
+
+    //functions
     void bboxCallback(const smoke::BoundingBoxes&);
     void imgCallback(const sensor_msgs::Image&);
     void bboxImgCallback(const smoke::BboxImageConstPtr&);
@@ -83,5 +83,10 @@ public:
     static void *workInThread(void*);
     bool getNodeStatus();
     bool getSubscriberStatus();
+
+public:
+    darknet_svm(ros::NodeHandle nh);
+    ~darknet_svm();
+    void init();
 };
 }

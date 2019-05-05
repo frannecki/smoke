@@ -1,4 +1,5 @@
 #include "darknetDetector.h"
+#include <iostream>
 
 namespace darknet_svm{
 bool cmp_by_prob(const smoke::BoundingBox& bbox1, const smoke::BoundingBox& bbox2){
@@ -18,6 +19,7 @@ darknet_svm::~darknet_svm(){
 }
 
 void darknet_svm::init(){
+    ROS_INFO("Started Node darknet_detector");
     std::string bboxImgSub;
     int bboxImgSub_qs;
 
@@ -27,29 +29,29 @@ void darknet_svm::init(){
 
     std::string darknetSVMSrv;
 
-    nh_.param("subscribers/img_bbox_sub/topic", bboxImgSub, std::string("/darknet_ros/image_bounding_boxes"));
-    nh_.param("subscribers/img_bbox_sub/queue_size", bboxImgSub_qs, 1);
+    nh_.param("/smoke/subscribers/img_bbox_sub/topic", bboxImgSub, std::string("/darknet_ros/image_bounding_boxes"));
+    nh_.param("/smoke/subscribers/img_bbox_sub/queue_size", bboxImgSub_qs, 1);
 
-    nh_.param("publishers/alarm_pub/topic", alarmPub, std::string("/kinectdev/smoke/alarm"));
-    nh_.param("publishers/alarm_pub/queue_size", alarmPub_qs, 1);
-    nh_.param("publishers/alarm_pub/latch", alarmPub_latch, false);
+    nh_.param("/smoke/publishers/alarm_pub/topic", alarmPub, std::string("/kinectdev/smoke/alarm"));
+    nh_.param("/smoke/publishers/alarm_pub/queue_size", alarmPub_qs, 1);
+    nh_.param("/smoke/publishers/alarm_pub/latch", alarmPub_latch, false);
     alarm_pub = nh_.advertise<std_msgs::Bool>(alarmPub, alarmPub_qs, alarmPub_latch);
 
-    nh_.param("services/img_bbox_sub/img_darknet_svm_srv/name", darknetSVMSrv, std::string("/kinectdev/smoke/smoke_darknet_svm_srv"));
+    nh_.param("/smoke/services/img_bbox_sub/img_darknet_svm_srv/name", darknetSVMSrv, std::string("/kinectdev/smoke/smoke_darknet_svm_srv"));
     sc = nh_.serviceClient<smoke::darknet_svm_node>(darknetSVMSrv);
 
     count = 0;
     alarm.data = false;
+    isNodeRunning = true;
     ovthresh = .7;
     subscriberStatus = false;
 
     img_bbox_sub = nh_.subscribe<smoke::BboxImage>(bboxImgSub, bboxImgSub_qs, &darknet_svm::bboxImgCallback, this);
-    int mainThreadStatus = pthread_create(&mainThread, NULL, workInThread, NULL);
+    int mainThreadStatus = pthread_create(&mainThread, NULL, workInThread, (void*)this);
 }
 
 void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
     bboxes = (*msg).bboxes;
-
     bounding_boxes = bboxes.bounding_boxes;
     // start to modify shared variables imgs, image_bridge, img_srv and bounding_boxes_u
     boost::unique_lock<boost::shared_mutex> lockImgCallback(mutexImgsStatus);
@@ -61,15 +63,15 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
         ROS_ERROR("cv_bridge exception: %s", e.what());
         return;
     }
-    if(!img_bridge_sub){
-        boost::unique_lock<boost::shared_mutex> lockImgCallback(mutexImgsStatus);
+    if(img_bridge_sub){
+        boost::unique_lock<boost::shared_mutex> lockSubscriber(mutexSubscriberStatus);
+        subscriberStatus = true;
+    }
+    else{
+        boost::unique_lock<boost::shared_mutex> lockSubscriber(mutexSubscriberStatus);
         subscriberStatus = false;
         sleep(1);
         return;
-    }
-    else{
-        boost::unique_lock<boost::shared_mutex> lockImgCallback(mutexImgsStatus);
-        subscriberStatus = true;
     }
     img = img_bridge_sub->image.clone();
     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
@@ -135,8 +137,8 @@ void *darknet_svm::callSVMInThread(void* param){
         ds->alarm.data = false;
         ROS_ERROR("Failed to call service node (svm classifier)");
         ROS_INFO("Waiting for service server to normally respond...");
-        sleep(0.5);
     }
+    sleep(0.5);
 }
 
 void *darknet_svm::alarmInThread(void* param){
@@ -160,29 +162,43 @@ void *darknet_svm::workInThread(void* param){
     darknet_svm *ds = (darknet_svm*)param;
     pthread_t callSVMThread;
     pthread_t alarmThread;
+    void* voidPtr;
+    int callSVMThreadStatus, alarmThreadStatus;
+    if(!(ds->subscriberStatus)){ sleep(0.5); }
 
     while(ros::ok()){
         {
             boost::shared_lock<boost::shared_mutex> lockNodeStatus(ds->mutexNodeStatus);
             if(!ds->isNodeRunning)  break;
         }
-        if(!ds->subscriberStatus){ sleep(0.5); continue; }
-        int callSVMThreadStatus = pthread_create(&callSVMThread, NULL, callSVMInThread, NULL);
-        if(ds->callSVMThreadStatus != 0){
-            ROS_ERROR("Failed to start thread - callSVMThread");
-            //exit(-1);
-            void* voidPtr;
+        {
+            boost::shared_lock<boost::shared_mutex> lockSubscriber(ds->mutexSubscriberStatus);
+            if(!ds->subscriberStatus){ sleep(0.5); continue; }
+        }
+        callSVMThreadStatus = pthread_create(&callSVMThread, NULL, callSVMInThread, param);
+        if(callSVMThreadStatus != 0){
+            ROS_ERROR("Failed to start thread (callSVMThread).");
             return voidPtr;
         }
         
-        int alarmThreadStatus = pthread_create(&alarmThread, NULL, alarmInThread, NULL);
+        alarmThreadStatus = pthread_create(&alarmThread, NULL, alarmInThread, param);
         if(alarmThreadStatus != 0){
-            ROS_ERROR("Failed to start thread - alarmThread");
-            //exit(-1);
+            ROS_ERROR("Failed to start thread (alarmThread).");
+            return voidPtr;
         }
 
         pthread_join(callSVMThread, NULL);
         pthread_join(alarmThread, NULL);
     }
+}
+
+bool darknet_svm::getNodeStatus(){
+    boost::shared_lock<boost::shared_mutex> lockNodeStatus(mutexNodeStatus);
+    return isNodeRunning;
+}
+
+bool darknet_svm::getSubscriberStatus(){
+    boost::shared_lock<boost::shared_mutex> lockSubscriber(mutexSubscriberStatus);
+    return subscriberStatus;
 }
 }

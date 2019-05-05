@@ -8,6 +8,7 @@
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "smoke_svm_client");
+    ros::Time::init();
     if (argc != 2){
         ROS_INFO("usage: smoke_svm_client batch_size");
         return -1;
@@ -29,9 +30,9 @@ int main(int argc, char **argv){
     //image_transport::ImageTransport it(nh);
     std::string imgSVMSrvClient, alarmPub;
     int qsize;
-    nh.param("services/image_svm_srv/name", imgSVMSrvClient, std::string("/kinectdev/smoke/smoke_svm_srv"));
-    nh.param("publishers/alarm_pub/topic", alarmPub, std::string("/kinectdev/smoke/alarm"));
-    nh.param("publishers/alarm_pub/queue_size", qsize, 1);
+    nh.param("/smoke/services/image_svm_srv/name", imgSVMSrvClient, std::string("/kinectdev/smoke/smoke_svm_srv"));
+    nh.param("/smoke/publishers/alarm_pub/topic", alarmPub, std::string("/kinectdev/smoke/alarm"));
+    nh.param("/smoke/publishers/alarm_pub/queue_size", qsize, 1);
     ros::ServiceClient client = nh.serviceClient<smoke::smoke_svm>(imgSVMSrvClient.c_str());  //recognize emergencies.
     ros::Publisher alarm_pub = nh.advertise<std_msgs::Bool>(alarmPub, qsize);  //Alarm. Arguments are topic and queue_size;
 

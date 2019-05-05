@@ -10,12 +10,11 @@ class listener():
         itchat.auto_login(hotReload=True)  # log in to Weixin
         
         itchat.send('[{0}]This is a trivial robot sending messages. Session started.'.format(self.timestr()), toUserName='filehelper')
-        rospy.init_node('listener', anonymous=True)
 
         alarmSub = ''
         alarmSub_qs = 1
-        alarmSub = rospy.get_param("subscribers/alarm_sub/topic")
-        alarmSub_qs = rospy.get_param("subscribers/alarm_sub/queue_size")
+        alarmSub = rospy.get_param("/smoke/subscribers/alarm_sub/topic")
+        alarmSub_qs = rospy.get_param("/smoke/subscribers/alarm_sub/queue_size")
         #rospy.Subscriber("/kinectdev/monitor/alarm", Bool, callback=self.alarmcallback, queue_size=1)
         rospy.Subscriber(alarmSub, Bool, callback=self.alarmcallback, queue_size=alarmSub_qs)
         rospy.spin()
@@ -38,4 +37,5 @@ class listener():
         itchat.send('[{0}]Session terminated.'.format(self.timestr()), toUserName='filehelper')
 
 if __name__ == '__main__':
+    rospy.init_node('listener', anonymous=True)
     listener()

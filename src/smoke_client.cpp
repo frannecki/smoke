@@ -28,9 +28,9 @@ int main(int argc, char** argv){
     std::string imgSrvClient;
     std::string alarmPub;
     int qsize;
-    nh.param("services/image_srv/name", imgSrvClient, std::string("/kinectdev/smoke/smoke_srv"));
-    nh.param("publishers/image/topic", alarmPub, std::string("/kinectdev/smoke/alarm"));
-    nh.param("publishers/image/queue_size", qsize, 1);
+    nh.param("/smoke/services/image_srv/name", imgSrvClient, std::string("/kinectdev/smoke/smoke_srv"));
+    nh.param("/smoke/publishers/image/topic", alarmPub, std::string("/kinectdev/smoke/alarm"));
+    nh.param("/smoke/publishers/image/queue_size", qsize, 1);
     ros::ServiceClient client = nh.serviceClient<smoke::smoke>(imgSrvClient);  //recognize emergencies.
     ros::Publisher alarm_pub = nh.advertise<std_msgs::Bool>(alarmPub, qsize);  //Alarm. Arguments are topic and queue_size;
     //actionlib::SimpleActionClient<smoke::AlarmAction> kobukiAlarmClient("/kinectdev/smoke/kobukiAlarm", true);  // true -> don't need ros::spin()

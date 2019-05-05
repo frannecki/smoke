@@ -61,8 +61,8 @@ int main(int argc, char **argv){
     }
     ros::NodeHandle nh;
     std::string imgSVMSrvServer, imgDarknetSVMSrvServer;
-    nh.param("services/image_svm_srv/name", imgSVMSrvServer, std::string("/kinectdev/smoke/smoke_svm_srv"));
-    nh.param("services/image_darknet_svm_srv/name", imgSVMSrvServer, std::string("/kinectdev/smoke/smoke_svm_srv"));
+    nh.param("/smoke/services/image_svm_srv/name", imgSVMSrvServer, std::string("/kinectdev/smoke/smoke_svm_srv"));
+    nh.param("/smoke/services/image_darknet_svm_srv/name", imgSVMSrvServer, std::string("/kinectdev/smoke/smoke_svm_srv"));
     ros::ServiceServer service = nh.advertiseService(imgSVMSrvServer, svmcallback);
     ros::ServiceServer ss = nh.advertiseService(imgDarknetSVMSrvServer, darknetsvmcallback);
     ros::spin();
