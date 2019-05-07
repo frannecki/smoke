@@ -46,7 +46,7 @@ void darknet_svm::init(){
     subscriberStatus = false;
     subscriberStatusDelay = RateNP(4.);
     mainThreadDelay = RateNP(10.);
-    imgCallbackDelay = RateNP(20.);
+    imgCallbackDelay = RateNP(15.);
 
     img_bbox_sub = nh_.subscribe<smoke::BboxImage>(bboxImgSub, bboxImgSub_qs, &darknet_svm::bboxImgCallback, this);
     //ros::spinOnce();
