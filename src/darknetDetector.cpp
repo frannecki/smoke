@@ -44,9 +44,9 @@ void darknet_svm::init(){
     isNodeRunning = true;
     ovthresh = .7;
     subscriberStatus = false;
-    subscriberStatusDelay = ros::Rate(4.);
-    mainThreadDelay = ros::Rate(10.);
-    imgCallbackDelay = ros::Rate(20.);
+    subscriberStatusDelay = RateNP(4.);
+    mainThreadDelay = RateNP(10.);
+    imgCallbackDelay = RateNP(20.);
 
     img_bbox_sub = nh_.subscribe<smoke::BboxImage>(bboxImgSub, bboxImgSub_qs, &darknet_svm::bboxImgCallback, this);
     //ros::spinOnce();
@@ -186,7 +186,11 @@ void *darknet_svm::workInThread(void* param){
             boost::shared_lock<boost::shared_mutex> lockSubscriber(ds->mutexSubscriberStatus);
             ts = ds->subscriberStatus;
         }
-        if(!ts)  { ds->subscriberStatusDelay.sleep(); continue; }
+        if(!ts)  { 
+            ds->subscriberStatusDelay.sleep(); 
+            //ROS_INFO("[darknetDetector] Waiting for subscriber to respond");
+            continue; 
+        }
         callSVMThreadStatus = pthread_create(&callSVMThread, NULL, callSVMInThread, param);
         if(callSVMThreadStatus != 0){
             ROS_ERROR("[darknetDetector] Failed to start thread (callSVMThread).");

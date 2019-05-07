@@ -27,6 +27,12 @@
 #include <algorithm>
 
 namespace darknet_svm{
+class RateNP: public ros::Rate{
+public:
+    RateNP(): ros::Rate(1.){};
+    RateNP(double freq): ros::Rate(freq){};
+};
+
 class darknet_svm{
 private:
     float ovthresh;
@@ -73,9 +79,9 @@ private:
     ros::ServiceClient sc;
 
     // thread sleep
-    ros::Rate subscriberStatusDelay = ros::Rate(1.);
-    ros::Rate mainThreadDelay = ros::Rate(1.);
-    ros::Rate imgCallbackDelay = ros::Rate(1.);
+    RateNP subscriberStatusDelay;
+    RateNP mainThreadDelay;
+    RateNP imgCallbackDelay;
 
     int count;
 
