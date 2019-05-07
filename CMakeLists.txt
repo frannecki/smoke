@@ -105,5 +105,10 @@ set(THREADS_USE_PTHREADS_WIN32 true)
     add_executable(darknet_detector ${CMAKE_CURRENT_SOURCE_DIR}/src/darknet_svm_node.cpp)
     add_dependencies(darknet_detector smoke_gencpp ${smoke_EXPORTED_TARGETS})
     target_link_libraries(darknet_detector ${PROJECT_NAME}_lib)
-  
+
+    add_executable(videostr ${CMAKE_CURRENT_SOURCE_DIR}/src/video_stream_node.cpp)
+    add_dependencies(videostr smoke_gencpp ${smoke_EXPORTED_TARGETS})
+    target_link_libraries(videostr ${catkin_LIBRARIES}
+        ${CMAKE_THREAD_LIBS_INIT}
+        ${OpenCV_LIBS})
   endif()

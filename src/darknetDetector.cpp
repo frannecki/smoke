@@ -1,5 +1,4 @@
 #include "darknetDetector.h"
-#include <iostream>
 
 namespace darknet_svm{
 bool cmp_by_prob(const smoke::BoundingBox& bbox1, const smoke::BoundingBox& bbox2){
@@ -19,7 +18,7 @@ darknet_svm::~darknet_svm(){
 }
 
 void darknet_svm::init(){
-    ROS_INFO("Started Node darknet_detector");
+    ROS_INFO("[darknetDetector] Node Started.");
     std::string bboxImgSub;
     int bboxImgSub_qs;
 
@@ -45,26 +44,29 @@ void darknet_svm::init(){
     isNodeRunning = true;
     ovthresh = .7;
     subscriberStatus = false;
+    subscriberStatusDelay = ros::Rate(4.);
+    mainThreadDelay = ros::Rate(10.);
+    imgCallbackDelay = ros::Rate(20.);
 
     img_bbox_sub = nh_.subscribe<smoke::BboxImage>(bboxImgSub, bboxImgSub_qs, &darknet_svm::bboxImgCallback, this);
     //ros::spinOnce();
     int mainThreadStatus = pthread_create(&mainThread, NULL, workInThread, (void*)this);
     if(mainThreadStatus != 0)
-        ROS_ERROR("Failed to start thread (mainThread)");
+        ROS_ERROR("[darknetDetector] Failed to start thread (mainThread)");
 }
 
 void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
-    ROS_INFO("Subscriber (img_bbox_sub) callback.");
+    ROS_INFO("[darknetDetector] Subscriber (img_bbox_sub) callback.");
     bboxes = (*msg).bboxes;
     bounding_boxes = bboxes.bounding_boxes;
-    // start to modify shared variables imgs, image_bridge, img_srv and bounding_boxes_u
+    // Modify shared variables 'imgs', 'image_bridge', 'img_srv' and 'bounding_boxes_u'
     boost::unique_lock<boost::shared_mutex> lockImgCallback(mutexImgsStatus);
     imgs = (*msg).img;
     try{
-        img_bridge_sub = cv_bridge::toCvCopy(imgs, sensor_msgs::image_encodings::TYPE_8UC3);
+        img_bridge_sub = cv_bridge::toCvCopy(imgs, sensor_msgs::image_encodings::BGR8);
     }
     catch(cv_bridge::Exception& e){
-        ROS_ERROR("cv_bridge exception: %s", e.what());
+        ROS_ERROR("[darknetDetector] cv_bridge exception: %s", e.what());
         return;
     }
     if(img_bridge_sub){
@@ -75,12 +77,12 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
         {
             boost::unique_lock<boost::shared_mutex> lockSubscriber(mutexSubscriberStatus);
             subscriberStatus = false;
-            ROS_ERROR("Warning: Invalid image!");
+            ROS_ERROR("[darknetDetector] Warning: Invalid image!");
         }
-        sleep(1);
+        imgCallbackDelay.sleep();
         return;
     }
-    ROS_INFO("Received an image along with %lu bounding boxes", bounding_boxes.size());
+    ROS_INFO("[darknetDetector] Received an image along with %lu bounding boxes", bounding_boxes.size());
     img = img_bridge_sub->image.clone();
     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
     bounding_boxes_u.clear();
@@ -98,7 +100,7 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
             continue;
         }
         for(int j = i+1; j < bounding_boxes.size(); ++j){
-            // rid of redundant bboxes
+            // rid of redundant bboxes (according to overlap)
             int xmin_1 = bounding_boxes[i].xmin;
             int xmax_1 = bounding_boxes[i].xmax;
             int ymin_1 = bounding_boxes[i].ymin;
@@ -119,7 +121,7 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
             }
         }
     }
-    sleep(1);
+    imgCallbackDelay.sleep();
 }
 
 void *darknet_svm::callSVMInThread(void* param){
@@ -143,23 +145,22 @@ void *darknet_svm::callSVMInThread(void* param){
     }
     else{
         ds->alarm.data = false;
-        ROS_ERROR("Failed to call service node (svm classifier)");
-        ROS_INFO("Waiting for service server to normally respond...");
+        ROS_ERROR("[darknetDetector] Failed to call SVC classifier!");
+        ROS_INFO("[darknetDetector] Waiting for server to properly respond...");
     }
-    sleep(0.5);
 }
 
 void *darknet_svm::alarmInThread(void* param){
-    ROS_INFO("Alarm! Smoke occurs.");
+    ROS_INFO("[darknetDetector] Alarm! Smoke occurs.");
     darknet_svm *ds = (darknet_svm*)param;
     
     boost::shared_lock<boost::shared_mutex> lockAlarm(ds->mutexAlarmStatus);
     ds->alarm_pub.publish(ds->alarm);
     if(ds->alarm.data == true){
-        int count = 0;
+        int count_ = 0;
         for(int i = 0; i < ds->bounding_box_u_response.size(); ++i){
             if(ds->bounding_box_u_response[i] == 1){
-                ROS_INFO("Position %d: (%ld, %ld) -> (%ld, %ld)", ++count, 
+                ROS_INFO("[darknetDetector] Position %d: (%ld, %ld) -> (%ld, %ld)", ++count_, 
                     ds->bounding_boxes_u[i].xmin, ds->bounding_boxes_u[i].ymin, ds->bounding_boxes_u[i].xmax, ds->bounding_boxes_u[i].ymax);
             }
         }
@@ -167,37 +168,40 @@ void *darknet_svm::alarmInThread(void* param){
 }
 
 void *darknet_svm::workInThread(void* param){
-    ROS_INFO("[Thread] mainThread running.");
+    ROS_INFO("[darknetDetector] mainThread running.");
     darknet_svm *ds = (darknet_svm*)param;
     pthread_t callSVMThread;
     pthread_t alarmThread;
     void* voidPtr;
     int callSVMThreadStatus, alarmThreadStatus;
-    if(!(ds->subscriberStatus)){ sleep(0.5); }
+    //if(!(ds->subscriberStatus)){ sleep(1); }
 
     while(ros::ok()){
         {
             boost::shared_lock<boost::shared_mutex> lockNodeStatus(ds->mutexNodeStatus);
             if(!ds->isNodeRunning)  break;
         }
+        bool ts;
         {
             boost::shared_lock<boost::shared_mutex> lockSubscriber(ds->mutexSubscriberStatus);
-            if(!ds->subscriberStatus){ sleep(0.5); continue; }
+            ts = ds->subscriberStatus;
         }
+        if(!ts)  { ds->subscriberStatusDelay.sleep(); continue; }
         callSVMThreadStatus = pthread_create(&callSVMThread, NULL, callSVMInThread, param);
         if(callSVMThreadStatus != 0){
-            ROS_ERROR("Failed to start thread (callSVMThread).");
+            ROS_ERROR("[darknetDetector] Failed to start thread (callSVMThread).");
             return voidPtr;
         }
         
         alarmThreadStatus = pthread_create(&alarmThread, NULL, alarmInThread, param);
         if(alarmThreadStatus != 0){
-            ROS_ERROR("Failed to start thread (alarmThread).");
+            ROS_ERROR("[darknetDetector] Failed to start thread (alarmThread).");
             return voidPtr;
         }
 
         pthread_join(callSVMThread, NULL);
         pthread_join(alarmThread, NULL);
+        ds->mainThreadDelay.sleep();
     }
 }
 
@@ -210,4 +214,4 @@ bool darknet_svm::getSubscriberStatus(){
     boost::shared_lock<boost::shared_mutex> lockSubscriber(mutexSubscriberStatus);
     return subscriberStatus;
 }
-}
+}  /// namespace 'darknet_svm'

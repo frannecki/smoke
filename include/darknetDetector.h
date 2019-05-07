@@ -52,12 +52,12 @@ private:
     std_msgs::Bool alarm;
 
     // mutex and thread
-    boost::shared_mutex mutexImgsStatus;  // for image and bbox messages
-    boost::shared_mutex mutexNodeStatus;
-    boost::shared_mutex mutexAlarmStatus;
-    boost::shared_mutex mutexSrvStatus;
-    boost::shared_mutex mutexSubscriberStatus;
-    boost::shared_mutex mutexBboxesUStatus;
+    boost::shared_mutex mutexImgsStatus;  // 'image' and 'bbox' messages
+    boost::shared_mutex mutexNodeStatus;  // 'isNodeRunning'
+    boost::shared_mutex mutexAlarmStatus;  // 'alarm'
+    //boost::shared_mutex mutexSrvStatus;
+    boost::shared_mutex mutexSubscriberStatus;  // 'subscriberStatus'
+    boost::shared_mutex mutexBboxesUStatus;  // 'bounding_boxes_u'
     pthread_t mainThread;
     int callSVMThreadStatus;
     int alarmThreadStatus;
@@ -71,6 +71,11 @@ private:
     // service client
     smoke::darknet_svm_node svm_srv;
     ros::ServiceClient sc;
+
+    // thread sleep
+    ros::Rate subscriberStatusDelay = ros::Rate(1.);
+    ros::Rate mainThreadDelay = ros::Rate(1.);
+    ros::Rate imgCallbackDelay = ros::Rate(1.);
 
     int count;
 
@@ -89,4 +94,4 @@ public:
     ~darknet_svm();
     void init();
 };
-}
+} // namespace 'darknet_svm'
