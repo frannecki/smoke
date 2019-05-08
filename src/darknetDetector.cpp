@@ -56,7 +56,7 @@ void darknet_svm::init(){
 }
 
 void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
-    ROS_INFO("[darknetDetector] Subscriber (img_bbox_sub) callback.");
+    // ROS_INFO("[darknetDetector] Subscriber (img_bbox_sub) callback.");
     bboxes = (*msg).bboxes;
     bounding_boxes = bboxes.bounding_boxes;
     // Modify shared variables 'imgs', 'image_bridge', 'img_srv' and 'bounding_boxes_u'
@@ -64,6 +64,7 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
     imgs = (*msg).img;
     try{
         img_bridge_sub = cv_bridge::toCvCopy(imgs, sensor_msgs::image_encodings::BGR8);
+        //cv_bridge::CvImageConstPtr img_bridge_sub = cv_bridge::toCvShare((*msg).img, sensor_msgs::image_encodings::BGR8);
     }
     catch(cv_bridge::Exception& e){
         ROS_ERROR("[darknetDetector] cv_bridge exception: %s", e.what());
@@ -82,7 +83,7 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
         imgCallbackDelay.sleep();
         return;
     }
-    ROS_INFO("[darknetDetector] Received an image along with %lu bounding boxes", bounding_boxes.size());
+    // ROS_INFO("[darknetDetector] Received an image along with %lu bounding boxes", bounding_boxes.size());
     img = img_bridge_sub->image.clone();
     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
     bounding_boxes_u.clear();
@@ -151,12 +152,12 @@ void *darknet_svm::callSVMInThread(void* param){
 }
 
 void *darknet_svm::alarmInThread(void* param){
-    ROS_INFO("[darknetDetector] Alarm! Smoke occurs.");
     darknet_svm *ds = (darknet_svm*)param;
     
     boost::shared_lock<boost::shared_mutex> lockAlarm(ds->mutexAlarmStatus);
     ds->alarm_pub.publish(ds->alarm);
     if(ds->alarm.data == true){
+        ROS_INFO("[darknetDetector] Alarm! Smoke occurs.");
         int count_ = 0;
         for(int i = 0; i < ds->bounding_box_u_response.size(); ++i){
             if(ds->bounding_box_u_response[i] == 1){
@@ -218,4 +219,4 @@ bool darknet_svm::getSubscriberStatus(){
     boost::shared_lock<boost::shared_mutex> lockSubscriber(mutexSubscriberStatus);
     return subscriberStatus;
 }
-}  /// namespace 'darknet_svm'
+}  // namespace 'darknet_svm'

@@ -401,6 +401,18 @@ field of view: 57 degrees (horizontal), 43 degrees (vertical)
   checkForObjectsActionServer_->start();
   ```
 
+* Modification
+  Added `bboxImagePublisher_`
+  ```cpp
+  // inside function 'void* darknet_ros::publishInThread()'
+  bboxImageResults_.bboxes = boundingBoxesResults_;
+  sensor_msgs::ImagePtr sensor_img = cv_bridge::CvImage(std_msgs::Header(), 
+        sensor_msgs::image_encodings::BGR8, cvImage.clone()).toImageMsg();
+  // do not use shared memory of cvImage (the msg would fail to be published).
+  bboxImageResults_.img = *sensor_img;
+  bboxImagePublisher_.publish(bboxImageResults_);
+  ```
+
 ### 0.1.7. Markdown
 * Comments and empty lines at the end of code blocks not allowed.
 * Use indent to create nested lists. The contents should be at least aligned left with the sub title. (typically 3 ch for ordered, 2 for unordered)

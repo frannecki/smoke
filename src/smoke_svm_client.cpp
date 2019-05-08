@@ -38,7 +38,7 @@ int main(int argc, char **argv){
 
     //std::vector<cv::Mat> graycus;
     cv::Mat graycus, hist, dst, hists;
-    rgbData rD(shape, rgbcus);
+    rgbData rD(rgbcus, nh);
 
     int counter = 0;
     while(ros::ok()){

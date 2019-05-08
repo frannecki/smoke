@@ -50,7 +50,7 @@ int main(int argc, char **argv){
         bbox.bounding_boxes = bboxvec;
         img_bbox.bboxes = bbox;
         img_bbox.img = *msg;
-        bboxpub.publish(img_bbox);
+        //bboxpub.publish(img_bbox);
         bboxvec.clear();
 
         rate.sleep();

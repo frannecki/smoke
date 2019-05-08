@@ -108,7 +108,13 @@ set(THREADS_USE_PTHREADS_WIN32 true)
 
     add_executable(videostr ${CMAKE_CURRENT_SOURCE_DIR}/src/video_stream_node.cpp)
     add_dependencies(videostr smoke_gencpp ${smoke_EXPORTED_TARGETS})
-    target_link_libraries(videostr ${catkin_LIBRARIES}
-        ${CMAKE_THREAD_LIBS_INIT}
-        ${OpenCV_LIBS})
+    target_link_libraries(videostr ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OpenCV_LIBS})
+    
+    add_executable(darkfetch ${CMAKE_CURRENT_SOURCE_DIR}/src/darknet_image_fetch.cpp)
+    add_dependencies(darkfetch smoke_gencpp ${smoke_EXPORTED_TARGETS})
+    target_link_libraries(darkfetch ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OpenCV_LIBS})
+
+    add_executable(bboxtest ${CMAKE_CURRENT_SOURCE_DIR}/src/bbox_test_node.cpp)
+    add_dependencies(bboxtest smoke_gencpp ${smoke_EXPORTED_TARGETS})
+    target_link_libraries(bboxtest ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OpenCV_LIBS})
   endif()

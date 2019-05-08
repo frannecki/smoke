@@ -1,8 +1,7 @@
 #include "rgbData.h"
 
-rgbData::rgbData(int *vshape, cv::Mat& img):it(n)
+rgbData::rgbData(cv::Mat& img, ros::NodeHandle& n):it(n)
 {
-    shape = vshape;
     rgbMat = &img;
     n.param("/smoke/subscribers/camera_reading/topic", imgSrc, std::string("/camera/rgb/image_rect_color"));
     n.param("/smoke/subscribers/camera_reading/queue_size", qsize, 1);

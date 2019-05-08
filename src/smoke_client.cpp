@@ -40,7 +40,7 @@ int main(int argc, char** argv){
 
     int shape[] = {1, 100, 100, 3};
     cv::Mat rgbcus(Size(shape[1], shape[2]), CV_8UC3);
-    rgbData rD(shape, rgbcus);
+    rgbData rD(rgbcus, nh);
     int res;
     std::vector<int> rgbVec;
     std::vector<int> vshape(shape, shape+4);
