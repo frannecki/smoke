@@ -43,3 +43,9 @@ actions:
 
   kobuki_alarm:
     name: /kinectdev/smoke/kobuki_alarm
+
+logs:
+  
+  smoke_warning: 
+    path: ../log
+    logfile: ../log/warnings.log

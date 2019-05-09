@@ -50,7 +50,7 @@ generate_messages(
 catkin_package(
   LIBRARIES
     ${PROJECT_NAME}_lib
-    liblbp
+    lbp_lib
   CATKIN_DEPENDS
     roscpp rospy std_msgs actionlib_msgs actionlib sensor_msgs cv_bridge image_transport
   DEPENDS
@@ -78,7 +78,7 @@ set(THREADS_USE_PTHREADS_WIN32 true)
                 ${CMAKE_CURRENT_SOURCE_DIR}/src/rgbData.cpp
                 ${CMAKE_CURRENT_SOURCE_DIR}/src/darknetDetector.cpp)
 
-    add_library(liblbp
+    add_library(lbp_lib
                 ${CMAKE_CURRENT_SOURCE_DIR}/src/LBP.cpp)
     
     target_link_libraries(${PROJECT_NAME}_lib
@@ -96,11 +96,11 @@ set(THREADS_USE_PTHREADS_WIN32 true)
 
     add_executable(smoke_svm_client ${CMAKE_CURRENT_SOURCE_DIR}/src/smoke_svm_client.cpp)
     add_dependencies(smoke_svm_client smoke_gencpp ${smoke_EXPORTED_TARGETS})
-    target_link_libraries(smoke_svm_client ${PROJECT_NAME}_lib liblbp)
+    target_link_libraries(smoke_svm_client ${PROJECT_NAME}_lib lbp_lib)
 
     add_executable(smoke_svm_server ${CMAKE_CURRENT_SOURCE_DIR}/src/smoke_svm_server.cpp)
     add_dependencies(smoke_svm_server smoke_gencpp ${smoke_EXPORTED_TARGETS})
-    target_link_libraries(smoke_svm_server ${PROJECT_NAME}_lib liblbp)
+    target_link_libraries(smoke_svm_server ${PROJECT_NAME}_lib lbp_lib)
 
     add_executable(darknet_detector ${CMAKE_CURRENT_SOURCE_DIR}/src/darknet_svm_node.cpp)
     add_dependencies(darknet_detector smoke_gencpp ${smoke_EXPORTED_TARGETS})

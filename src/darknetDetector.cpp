@@ -39,6 +39,9 @@ void darknet_svm::init(){
     nh_.param("/smoke/services/img_bbox_sub/img_darknet_svm_srv/name", darknetSVMSrv, std::string("/kinectdev/smoke/smoke_darknet_svm_srv"));
     sc = nh_.serviceClient<smoke::darknet_svm_node>(darknetSVMSrv);
 
+    nh_.param("/smoke/logs/smoke_warning/path", logpath, std::string("../log"));
+    nh_.param("/smoke/logs/smoke_warning/logfile", logfile, std::string("../log/warnings.log"));
+
     count = 0;
     alarm.data = false;
     isNodeRunning = true;
@@ -94,18 +97,24 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
     img_bridge.toImageMsg(img_srv);
     // selecting bounding boxes
     std::vector<int> overlap(bounding_boxes.size(), 0);
+    std::vector<smoke::BoundingBox> chimbox;
+    std::vector<smoke::BoundingBox> bounding_boxes_tmp;
     std::sort(bounding_boxes.begin(), bounding_boxes.end(), cmp_by_prob);
     for(int i = 0; i < bounding_boxes.size(); ++i){
-        if(overlap[i] != 0){
-            bounding_boxes_u.push_back(bounding_boxes[i]);
-            continue;
+        if(overlap[i] == 0 && bounding_boxes[i].Class == "smoke"){
+            bounding_boxes_tmp.push_back(bounding_boxes[i]);
         }
+        else continue;
+        int xmin_1 = bounding_boxes[i].xmin;
+        int xmax_1 = bounding_boxes[i].xmax;
+        int ymin_1 = bounding_boxes[i].ymin;
+        int ymax_1 = bounding_boxes[i].ymax;
         for(int j = i+1; j < bounding_boxes.size(); ++j){
             // rid of redundant bboxes (according to overlap)
-            int xmin_1 = bounding_boxes[i].xmin;
-            int xmax_1 = bounding_boxes[i].xmax;
-            int ymin_1 = bounding_boxes[i].ymin;
-            int ymax_1 = bounding_boxes[i].ymax;
+            if(bounding_boxes[j].Class == "chimney"){
+                chimbox.push_back(bounding_boxes[j]);
+                continue;
+            }
             int xmin_2 = bounding_boxes[j].xmin;
             int xmax_2 = bounding_boxes[j].xmax;
             int ymin_2 = bounding_boxes[j].ymin;
@@ -114,13 +123,41 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
             int y_min = std::max(ymin_1, ymin_2);
             int x_max = std::min(xmax_1, xmax_2);
             int y_max = std::min(ymax_1, ymax_2);
-            float intersec = static_cast<float>((x_max-x_min)*(y_max-y_min));
-            float uni = static_cast<float>((xmax_1-xmin_1)*(ymax_1-ymin_1) + (xmax_1-xmin_1)*(ymax_1-ymin_1)) - intersec;
-            float ovlap = intersec / uni;
+            float ovlap;
+            if(x_min <= x_max && y_min <= y_max){ // two rectangles do overlap
+                float intersec = static_cast<float>((x_max-x_min)*(y_max-y_min));
+                float uni = static_cast<float>((xmax_1-xmin_1)*(ymax_1-ymin_1) + (xmax_1-xmin_1)*(ymax_1-ymin_1)) - intersec;
+                ovlap = intersec / (uni + std::numeric_limits<float>::epsilon());
+            }
+            else  ovlap = 0.;  // no overlap
             if(ovlap > ovthresh){
                 overlap[j] = 1;
             }
         }
+    }
+
+    std::vector<int> vapor(bounding_boxes_tmp.size(), 0);
+    // rid of bounding boxes of vapor emitted from chimneys
+    for(int i = 0; i < chimbox.size(); ++i){
+        int xmin_chim = chimbox[i].xmin;
+        int xmax_chim = chimbox[i].xmax;
+        int ymin_chim = chimbox[i].ymin;
+        int ymax_chim = chimbox[i].ymax;
+        for(int j = 0; j < bounding_boxes_tmp.size(); ++j){
+            int xmin_smk = bounding_boxes_tmp[j].xmin;
+            int xmax_smk = bounding_boxes_tmp[j].xmax;
+            int ymin_smk = bounding_boxes_tmp[j].ymin;
+            int ymax_smk = bounding_boxes_tmp[j].ymax;
+            if(ymax_smk > static_cast<float>(ymax_chim+ymin_chim) / 2)  continue;
+            else if(ymin_smk > ymin_chim)  continue;
+            else if(xmax_smk <= xmin_chim || xmin_smk >= xmax_chim)  continue;
+            else  vapor[j] = 1;
+        }
+    }
+
+    for(int i = 0; i < bounding_boxes_tmp.size(); ++i){
+        if(vapor[i] == 0)
+            bounding_boxes_u.push_back(bounding_boxes_tmp[i]);
     }
     imgCallbackDelay.sleep();
 }
@@ -157,12 +194,19 @@ void *darknet_svm::alarmInThread(void* param){
     boost::shared_lock<boost::shared_mutex> lockAlarm(ds->mutexAlarmStatus);
     ds->alarm_pub.publish(ds->alarm);
     if(ds->alarm.data == true){
-        ROS_INFO("[darknetDetector] Alarm! Smoke occurs.");
+        boost::unique_lock<boost::shared_mutex> lockLogwriterStatus(ds->mutexLogWriterStatus);
+        ds->logwriter.open(ds->logfile, std::ios::app);
+        ROS_INFO("[darknetDetector] Alarm! Smoke occurred.");
+        ds->logwriter << "[Alarm]Smoke occurred" << std::endl;
         int count_ = 0;
         for(int i = 0; i < ds->bounding_box_u_response.size(); ++i){
             if(ds->bounding_box_u_response[i] == 1){
                 ROS_INFO("[darknetDetector] Position %d: (%ld, %ld) -> (%ld, %ld)", ++count_, 
                     ds->bounding_boxes_u[i].xmin, ds->bounding_boxes_u[i].ymin, ds->bounding_boxes_u[i].xmax, ds->bounding_boxes_u[i].ymax);
+
+                ds->logwriter << std::setw(100) << "[Alarm][Position] " << count_ \
+                              << ": (" << ds->bounding_boxes_u[i].xmin << ", " << ds->bounding_boxes_u[i].ymin << ") -> " \
+                              << "(" << ds->bounding_boxes_u[i].xmax << ", " << ds->bounding_boxes_u[i].ymin << ")" << std::endl;
             }
         }
     }

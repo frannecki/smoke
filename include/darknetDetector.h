@@ -13,11 +13,11 @@
 #include "opencv2/opencv.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
-//#include "LBP.h"
 
 // CXX
 #include <stdlib.h>
 #include <unistd.h>
+#include <limits>
 #include <chrono>
 #include <pthread.h>
 #include <boost/thread.hpp>
@@ -25,6 +25,8 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <iomanip>
+#include <fstream>
 
 namespace darknet_svm{
 class RateNP: public ros::Rate{
@@ -64,6 +66,7 @@ private:
     //boost::shared_mutex mutexSrvStatus;
     boost::shared_mutex mutexSubscriberStatus;  // 'subscriberStatus'
     boost::shared_mutex mutexBboxesUStatus;  // 'bounding_boxes_u'
+    boost::shared_mutex mutexLogWriterStatus; // 'logwriter'
     pthread_t mainThread;
     int callSVMThreadStatus;
     int alarmThreadStatus;
@@ -84,6 +87,11 @@ private:
     RateNP imgCallbackDelay;
 
     int count;
+
+    // log file writer
+    std::ofstream logwriter;
+    std::string logfile;
+    std::string logpath;
 
     //functions
     void bboxCallback(const smoke::BoundingBoxes&);
