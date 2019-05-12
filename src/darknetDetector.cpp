@@ -124,12 +124,12 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
             int x_max = std::min(xmax_1, xmax_2);
             int y_max = std::min(ymax_1, ymax_2);
             float ovlap;
-            if(x_min <= x_max && y_min <= y_max){ // two rectangles do overlap
-                float intersec = static_cast<float>((x_max-x_min)*(y_max-y_min));
-                float uni = static_cast<float>((xmax_1-xmin_1)*(ymax_1-ymin_1) + (xmax_1-xmin_1)*(ymax_1-ymin_1)) - intersec;
-                ovlap = intersec / (uni + std::numeric_limits<float>::epsilon());
-            }
-            else  ovlap = 0.;  // no overlap
+            float width = std::max(0, static_cast<float>(x_max-x_min+1));
+            float height = std::max(0, static_cast<float>(y_max-y_min+1));
+            float intersec = width*height;
+            float uni = static_cast<float>((xmax_1-xmin_1+1)*(ymax_1-ymin_1+1) + 
+                (xmax_2-xmin_2+1)*(ymax_2-ymin_2+1)) - intersec;
+            ovlap = intersec / (uni + std::numeric_limits<float>::epsilon());
             if(ovlap > ovthresh){
                 overlap[j] = 1;
             }
