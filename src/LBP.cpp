@@ -207,12 +207,17 @@ namespace lbp{
 	}
 
 	void LBPSVM::getEigen(){
+		/*
 		Mat hist;
 	    std::vector<int> vec;
 	    LoadSample(hist, vec, 0);
 	    int n_comp = 36;
 	    PCA pca(hist, Mat(), PCA::DATA_AS_ROW, n_comp);
         EigenMat = pca.eigenvectors.clone();
+		*/
+	    const char* EigenMatDir = "./../data/eigenMat.yml";
+	    cv::FileStorage efile(EigenMatDir, cv::FileStorage::READ);
+		efile["data"] >> EigenMat;
 	}
 
 	void LBPSVM::randArrange01(std::vector<int> &vec) {

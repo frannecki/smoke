@@ -26,6 +26,9 @@ services:
   image_darknet_svm_srv:
     name: /kinectdev/smoke/smoke_darknet_svm_srv
 
+  image_svm_nn_srv:
+    name: /kinectdev/smoke/smoke_svm_nn_srv
+
 
 publishers:
 

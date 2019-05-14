@@ -50,6 +50,8 @@ void darknet_svm::init(){
     subscriberStatusDelay = RateNP(4.);
     mainThreadDelay = RateNP(10.);
     imgCallbackDelay = RateNP(15.);
+    htthresh = 20.;
+    wdthresh = 20.;
 
     img_bbox_sub = nh_.subscribe<smoke::BboxImage>(bboxImgSub, bboxImgSub_qs, &darknet_svm::bboxImgCallback, this);
     //ros::spinOnce();
@@ -88,12 +90,12 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
     }
     // ROS_INFO("[darknetDetector] Received an image along with %lu bounding boxes", bounding_boxes.size());
     img = img_bridge_sub->image.clone();
-    cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+    // cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
     bounding_boxes_u.clear();
 
     header.seq = ++count;   // user defined counter
     header.stamp = ros::Time::now();   // time
-    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::TYPE_8UC1, img);
+    img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, img);  // published image is of bgr.
     img_bridge.toImageMsg(img_srv);
     // selecting bounding boxes
     std::vector<int> overlap(bounding_boxes.size(), 0);
@@ -101,14 +103,16 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
     std::vector<smoke::BoundingBox> bounding_boxes_tmp;
     std::sort(bounding_boxes.begin(), bounding_boxes.end(), cmp_by_prob);
     for(int i = 0; i < bounding_boxes.size(); ++i){
-        if(overlap[i] == 0 && bounding_boxes[i].Class == "smoke"){
-            bounding_boxes_tmp.push_back(bounding_boxes[i]);
-        }
-        else continue;
         int xmin_1 = bounding_boxes[i].xmin;
         int xmax_1 = bounding_boxes[i].xmax;
         int ymin_1 = bounding_boxes[i].ymin;
         int ymax_1 = bounding_boxes[i].ymax;
+        float height_1 = static_cast<float>(std::max(ymax_1-ymin_1+1, 0));
+        float width_1 = static_cast<float>(std::max(xmax_1-xmin_1+1, 0));
+        if(overlap[i] == 0 && bounding_boxes[i].Class == "smoke" && height_1 >= htthresh && width_1 >=wdthresh){
+            bounding_boxes_tmp.push_back(bounding_boxes[i]);
+        }
+        else continue;
         for(int j = i+1; j < bounding_boxes.size(); ++j){
             // rid of redundant bboxes (according to overlap)
             if(bounding_boxes[j].Class == "chimney"){
@@ -126,7 +130,9 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
             float height = static_cast<float>(std::max(y_max-y_min+1, 0));
             float width = static_cast<float>(std::max(x_max-x_min+1, 0));
             float intersec = height * width;
-            float uni = static_cast<float>((xmax_1-xmin_1+1)*(ymax_1-ymin_1+1) + (xmax_1-xmin_1+1)*(ymax_1-ymin_1+1)) - intersec;
+            float area1 = static_cast<float>((xmax_1-xmin_1+1)*(ymax_1-ymin_1+1));
+            float area2 = static_cast<float>((xmax_2-xmin_2+1)*(ymax_2-ymin_2+1));
+            float uni = (area1 + area2) - intersec;
             float ovlap = intersec / (uni + std::numeric_limits<float>::epsilon());
             if(ovlap > ovthresh){
                 overlap[j] = 1;

@@ -50,5 +50,6 @@
         "typeinfo": "cpp",
         "utility": "cpp",
         "*.ipp": "cpp"
-    }
+    },
+    "python.pythonPath": "/usr/bin/python"
 }

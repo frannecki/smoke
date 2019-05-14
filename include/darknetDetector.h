@@ -87,6 +87,7 @@ private:
     RateNP imgCallbackDelay;
 
     int count;
+    float htthresh, wdthresh;
 
     // log file writer
     std::ofstream logwriter;
