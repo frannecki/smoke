@@ -20,31 +20,31 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../devel/include)
 
 add_service_files(
   FILES
-  smoke.srv
-  smoke_svm.srv
-  kinect_srv.srv
-  darknet_svm_node.srv
+    smoke.srv
+    smoke_svm.srv
+    kinect_srv.srv
+    darknet_svm_node.srv
 )
 
 add_message_files(
   FILES
-  alarm.msg
-  BoundingBox.msg
-  BoundingBoxes.msg
-  BboxImage.msg
+    alarm.msg
+    BoundingBox.msg
+    BoundingBoxes.msg
+    BboxImage.msg
 )
 
 add_action_files(
   FILES
-  Alarm.action
+    Alarm.action
 )
 
 generate_messages(
   DEPENDENCIES
-  smoke
-  sensor_msgs
-  std_msgs
-  actionlib_msgs
+    smoke
+    sensor_msgs
+    std_msgs
+    actionlib_msgs
 )
 
 catkin_package(
@@ -117,4 +117,8 @@ set(THREADS_USE_PTHREADS_WIN32 true)
     add_executable(bboxtest ${CMAKE_CURRENT_SOURCE_DIR}/src/bbox_test_node.cpp)
     add_dependencies(bboxtest smoke_gencpp ${smoke_EXPORTED_TARGETS})
     target_link_libraries(bboxtest ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OpenCV_LIBS})
+
+    add_executable(srvtest ${CMAKE_CURRENT_SOURCE_DIR}/test/testSrv.cpp)
+    add_dependencies(srvtest smoke_gencpp ${smoke_EXPORTED_TARGETS})
+    target_link_libraries(srvtest ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OpenCV_LIBS})
   endif()

@@ -73,13 +73,14 @@
     > 其中`callback_args`为订阅器回调函数除消息外的其它参数。
 
   * `rospy.Publisher`/`ros::Publisher`
+    
     ```python
     __init__(self, name, data_class, subscriber_listener=None, tcp_nodelay=False, latch=False, headers=None, queue_size=None)
     ```
     ```cpp
     Publisher()
-    ```
-
+  ```
+  
 * 发布和订阅ROS图片
   ROS图片是作为`sensor_msgs/Image`或者`sensor_msgs/ImagePtr`格式发布的，`cv::Mat`[可以这样转换](http://wiki.ros.org/image_transport/Tutorials/PublishingImages)：
   ```cpp
@@ -180,33 +181,35 @@
      ```
 
      ```python
-     ```
-
+     
+```
+     
   2. Server
      ```cpp
-     ```
-
+   ros::ServiceServer server = nh.advertiseService(topicname, callback)
+  ```
+     
      ```python
      import monitor.msgs
-     import roslib
-     import actionlib
-
+   import roslib
+  import actionlib
+     
      rospy.init_node('kobuki_actSrv')
      self.server = actionlib.SimpleActionServer(self._name, AlarmAction, 
             execute_cb=self.actCallback, auto_start=False)
      self._feedback = monitor.msg.AlarmFeedback()  # feedback during the process
      self._res = monitor.msg.AlarmResult()  # final result
      self.rate = rospy.Rate(1)
-     self.server.start()
-     rospy.spin()
-
-     def actCallback(self, goal):
-
+   self.server.start()
+  rospy.spin()
+   
+  def actCallback(self, goal):
+     
         for i in range(0, goal.order):
             self._feedback.fback = 0
-            self.server.publish_feedback(self._feedback)
-            self.rate.sleep()
-
+          self.server.publish_feedback(self._feedback)
+         self.rate.sleep()
+     
         self._res.res = 1
         self.server.set_succeeded(self._res)
      ```
