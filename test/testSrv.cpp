@@ -22,14 +22,14 @@ bool srvCallback(smoke::darknet_svm_node::Request &req, smoke::darknet_svm_node:
     sensor_msgs::Image imgs = req.img;
     std::vector<smoke::BoundingBox> bounding_boxes = req.bboxes.bounding_boxes;
     std::vector<int> bbox_indexes;
-    img = cv_bridge::toCvCopy(imgs, sensor_msgs::image_encodings::TYPE_8UC1)->image.clone();
+    img = cv_bridge::toCvCopy(imgs, sensor_msgs::image_encodings::BGR8)->image.clone();
     ROS_INFO("[service_test_node] Received %lu bounding boxes", bounding_boxes.size());
     for(int i = 0; i < bounding_boxes.size(); ++i){
         int xmin = bounding_boxes[i].xmin;
         int xmax = bounding_boxes[i].xmax;
         int ymin = bounding_boxes[i].ymin;
         int ymax = bounding_boxes[i].ymax;
-        ROS_INFO("[service_test_node] Bounding Box %d (%d, %d) -> (%d, %d)", i, xmin, ymin, xmax, ymax);
+        ROS_INFO("[service_test_node] Bounding Box %d: %s (%d, %d) -> (%d, %d)", i, bounding_boxes[i].Class.c_str(), xmin, ymin, xmax, ymax);
     }
     std::vector<int> resp(bounding_boxes.size(), 0);
     res.res = resp;
