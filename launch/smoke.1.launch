@@ -1,53 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--launch file for smoke package.-->
 <launch>
 
   <!-- ROS and network parameter files -->
-  <arg name="ros_param_file"  default="$(find smoke)/config/darknet_svm.yml"/>
+  <arg name="ros_param_file" default="$(find smoke)/config/darknet_svm.yml"/>
 
   <!-- Load parameters -->
   <rosparam command="load" ns="smoke" file="$(arg ros_param_file)"/>
 
-  <!--include freenect.launch-->
-  <!--include file="$(find freenect_launch)/launch/examples/freenect-ns.launch"></include-->
-  <include file="$(find freenect_launch)/launch/examples/freenect-registered-xyzrgb.launch"></include>
-  
+  <include file="$(find smoke)/launch/darknet_ros_smoke.launch"></include>
+
+  <!--video stream publisher-->
+  <node pkg="smoke" type="videostr" name="video_stream_node" output="screen" required="true"/>
+
   <!--darknet_detetor-->
-  <node
-    pkg="smoke"
-    type="darknet_detector"
-    name="darknet_detector_node"
-    output="screen"
-    required="true"
-  />
+  <node pkg="smoke" type="darknet_detector" name="darknet_detector_node" output="screen" required="true"/>
 
-  <node
-    pkg="smoke"
-    type="kobuki_actSrv.py"
-    name="kobuki_action"
-    output="screen"
-    required="true"
-  />
+  <node pkg="smoke" type="kobuki_actSrv.py" name="kobuki_action_node" output="screen"/>
 
-  <node
-    pkg="smoke"
-    type="alarm_sub.py"
-    name="alarm_sub"
-    output="screen"
-    required="false"
-  />
-
-  <!--<node
-    pkg="smoke"
-    type="smoke_svm_client"
-    name="smoke_svm_client_node"
-    required="true"
-  /-->
-
-  <node
-    pkg="smoke"
-    type="smoke_svm_server"
-    name="smoke_svm_server_node"
-    required="false"
-  />
+  <node pkg="smoke" type="srvtest" name="service_test_node" output="screen" required="true"/>
 
 </launch>

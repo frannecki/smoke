@@ -29,7 +29,8 @@ bool srvCallback(smoke::darknet_svm_node::Request &req, smoke::darknet_svm_node:
         int xmax = bounding_boxes[i].xmax;
         int ymin = bounding_boxes[i].ymin;
         int ymax = bounding_boxes[i].ymax;
-        ROS_INFO("[service_test_node] Bounding Box %d: %s (%d, %d) -> (%d, %d)", i, bounding_boxes[i].Class.c_str(), xmin, ymin, xmax, ymax);
+        double prob = bounding_boxes[i].probability;
+        ROS_INFO("[service_test_node] Bounding Box %d: %s %.2lf (%d, %d) -> (%d, %d)", i, bounding_boxes[i].Class.c_str(), prob, xmin, ymin, xmax, ymax);
     }
     std::vector<int> resp(bounding_boxes.size(), 0);
     res.res = resp;
