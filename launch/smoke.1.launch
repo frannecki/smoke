@@ -13,7 +13,7 @@
   <!--video stream publisher-->
   <node pkg="smoke" type="videostr" name="video_stream_node" output="screen" required="true"/>
 
-  <node pkg="smoke" type="smoke_nn_server.py" name="smoke_nn_server_node" output="log"/>
+  <node pkg="smoke" type="smoke_nn_server.py" name="smoke_nn_server_node" output="screen"/>
 
   <node pkg="smoke" type="smoke_svm_server" name="smoke_svm_server_node" output="screen"/>
 

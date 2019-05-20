@@ -30,30 +30,28 @@ class smoke_nn_server():
     def pred(self, arr):
         if K.image_data_format() == 'channels_first':
             arr = arr.transpose((0, 3, 1, 2))
+        res = []
         with self.graph.as_default():
-            res = self.model.predict_classes(arr)
-            '''
-            for i in range(0, b[0]):
-                pre = model.predict_classes(arr[i])
-                res.append(pre)
-            '''
-        res = list(res)
+            pre = self.model.predict_classes(arr)
+            for pred in enumerate(pre):
+                res.append(np.argmax(pred))
         return res
 
     def callback_nn(self, req):
         cv_image = self.bridge.imgmsg_to_cv2(req.img, 'bgr8')
         bboxset = req.bboxes.bounding_boxes
         arr = []
-        for i in range(len(bboxset)):
-            xmin = bboxset[i].xmin
-            xmax = bboxset[i].xmax
-            ymin = bboxset[i].ymin
-            ymax = bboxset[i].ymax
+        # rospy.loginfo('[smoke_nn_server] Received {} suspected bounding boxes'.format(len(bboxset)))
+        for bbox in bboxset:
+            xmin = bbox.xmin
+            xmax = bbox.xmax
+            ymin = bbox.ymin
+            ymax = bbox.ymax
             bimg = cv_image[xmin:xmax, ymin:ymax, :]
             bimg_scale = cv.resize(bimg, (100, 100), cv.INTER_NEAREST)
             arr.append(bimg_scale)
         arr = np.asarray(arr)
-        res = self.pred(arr)
+        res = self.pred(arr) if arr.shape[0] > 0 else []
         return darknet_svm_nodeResponse(res)
 
 

@@ -51,26 +51,29 @@ bool darknetsvmcallback(smoke::darknet_svm_node::Request &req,
             ROS_ERROR("[smoke_svm_server] Size of image: (%d, %d) .%s", obj.rows, obj.cols, e.what());
         }
         float response = SVM->Predict(tmp);
-        resp.push_back(static_cast<int>(response));
+        resp[i] = static_cast<int>(response);
+
+        if(resp[i] == 1){
+            bounding_boxes_u.push_back(bounding_boxes[i]);
+            bbox_indexes.push_back(i);
+        }
     }
 
     // using nn classifier
-    for(int i = 0; i < resp.size(); ++i){
-        if(i == 1)  bounding_boxes_u.push_back(bounding_boxes[i]);
-        bbox_indexes.push_back(i);
-    }
-
-    cv_bridge::CvImage(std_msgs::Header(), sensor_msgs::image_encodings::BGR8, img).toImageMsg(svm_nn_srv->request.img);
-    svm_nn_srv->request.bboxes.bounding_boxes = bounding_boxes_u;
-    if(sc->call(*svm_nn_srv)){
-        ROS_INFO("[smoke_svm_server] Called nn server.");
-        std::vector<int> nnpos = svm_nn_srv->response.res;
-        for(int i = 0; i < nnpos.size(); ++i){
-            resp[bbox_indexes[i]] = nnpos[i];
+    if(bbox_indexes.size() > 0){
+        cv_bridge::CvImage(std_msgs::Header(), sensor_msgs::image_encodings::BGR8, img).toImageMsg(svm_nn_srv->request.img);
+        svm_nn_srv->request.bboxes.bounding_boxes = bounding_boxes_u;
+        ROS_INFO("[smoke_svm_server] Detected %lu suspicious boxes\n", bbox_indexes.size());
+        if(sc->call(*svm_nn_srv)){
+            ROS_INFO("[smoke_svm_server] Succeeded in calling nn server.");
+            std::vector<int> nnpos = svm_nn_srv->response.res;
+            for(int i = 0; i < nnpos.size(); ++i){
+                resp[bbox_indexes[i]] = nnpos[i];
+            }
         }
-    }
-    else{
-        ROS_ERROR("[smoke_svm_server] Failed to call nn server!");
+        else{
+            ROS_ERROR("[smoke_svm_server] Failed to call nn server!");
+        }
     }
     res.res = resp;
     return true;
