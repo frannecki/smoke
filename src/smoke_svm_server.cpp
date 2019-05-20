@@ -42,7 +42,7 @@ bool darknetsvmcallback(smoke::darknet_svm_node::Request &req,
         int ymin = bounding_boxes[i].ymin;
         int width = bounding_boxes[i].xmax - bounding_boxes[i].xmin + 1;
         int height = bounding_boxes[i].ymax - bounding_boxes[i].ymin + 1;
-        printf("%d %d\n", width, height);
+        // printf("%d %d\n", width, height);
         obj = img_gray(cv::Rect(xmin, ymin, width, height));
         try{
             cv::resize(obj, tmp, Size(100, 100));
@@ -63,10 +63,14 @@ bool darknetsvmcallback(smoke::darknet_svm_node::Request &req,
     cv_bridge::CvImage(std_msgs::Header(), sensor_msgs::image_encodings::BGR8, img).toImageMsg(svm_nn_srv->request.img);
     svm_nn_srv->request.bboxes.bounding_boxes = bounding_boxes_u;
     if(sc->call(*svm_nn_srv)){
+        ROS_INFO("[smoke_svm_server] Called nn server.");
         std::vector<int> nnpos = svm_nn_srv->response.res;
         for(int i = 0; i < nnpos.size(); ++i){
             resp[bbox_indexes[i]] = nnpos[i];
         }
+    }
+    else{
+        ROS_ERROR("[smoke_svm_server] Failed to call nn server!");
     }
     res.res = resp;
     return true;
@@ -98,6 +102,8 @@ int main(int argc, char **argv){
     sc = nh.serviceClient<smoke::darknet_svm_node>(svmnnSrv);
     ros::ServiceServer ss = nh.advertiseService<smoke::darknet_svm_node::Request, smoke::darknet_svm_node::Response>
             (imgDarknetSVMSrvServer, boost::bind(&darknetsvmcallback, _1, _2, &SVM, &sc, &svm_nn_srv));
-    ros::spin();
+    while(ros::ok()){
+        ros::spinOnce();
+    }
     return 0;
 }
