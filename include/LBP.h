@@ -54,17 +54,18 @@ namespace lbp
 		Ptr<ml::SVM> SVM;
 		std::vector<const char*> dirs;
 		std::vector<int> FN;
-		char *ModelDir;
+		char *ModelDir, *EigenMatDir;
 		void LoadSample(Mat&, std::vector<int>&, int);
 		void randArrange01(std::vector<int>&);
 		lbp::LBP extractor;
 		Mat EigenMat;
 	public:
-		LBPSVM(int cs,
-			int R,
+		LBPSVM(int cs = 25,
+			int R = 2,
+			const char* EM = "",
+			const char* MD = "./../models/svm/model",
 			int sub = 1,
 			std::vector<int> fileNums = { 551, 831, 172, 172 },
-			const char* MD = "../models/svm/model",
 			ml::SVM::Types type = ml::SVM::C_SVC,
 			ml::SVM::KernelTypes kernel_type = ml::SVM::POLY,
 			TermCriteria term_crit = TermCriteria(TermCriteria::MAX_ITER, 100, 1e-6),

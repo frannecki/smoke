@@ -52,3 +52,14 @@ logs:
   smoke_warning: 
     path: ../log
     logfile: ../log/warnings.log
+
+svm:
+
+  modelpath: /home/fran/ROS/catkin_ws/src/smoke/models/svm/model_
+
+  eigen:
+    eigenmat: /home/fran/ROS/catkin_ws/src/smoke/data/eigenMat.yml
+
+  lbp_params:
+    cellsize: 25
+    radius: 2

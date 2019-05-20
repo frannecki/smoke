@@ -161,11 +161,14 @@ namespace lbp{
 		return RILBPHistogramW(dst, cellSize);
 	}
 
-    LBPSVM::~LBPSVM() {delete ModelDir;}
+    LBPSVM::~LBPSVM() {
+		delete ModelDir;
+		delete EigenMatDir;
+	}
 
 	const char* LBPSVM::getMD() const {return ModelDir;}
 
-	LBPSVM::LBPSVM(int cs,	int R, int sub, std::vector<int> fileNums, const char* MD, ml::SVM::Types type, ml::SVM::KernelTypes kernel_type, 
+	LBPSVM::LBPSVM(int cs,	int R, const char* EM, const char* MD, int sub, std::vector<int> fileNums, ml::SVM::Types type, ml::SVM::KernelTypes kernel_type, 
                TermCriteria term_crit, double _c, double coef0, double degree, double gamma, 
                const char* TrainingPositive, const char* TrainingNegative, const char* TestingPositive, const char* TestingNegative)
     {
@@ -189,33 +192,30 @@ namespace lbp{
 		dirs.push_back(TestingNegative);
 
 		//setting the directory for saving the support vectors and parameters.
-		ModelDir = (char*)malloc(sizeof(char)*50);
+		EigenMatDir = new char[100];
+		strcpy(EigenMatDir, EM);
+		ModelDir = new char[100];
 		*ModelDir = '\0';
 		char csizestr[10], radiusstr[10], nblocksstr[10];
 		snprintf(csizestr, 10, "%d", csize);
 		snprintf(radiusstr, 10, "%d", radius);
 		snprintf(nblocksstr, 10, "%d", nblocks);
 		strcat(ModelDir, MD);
-			
-		strcat(ModelDir, "_");
 		strcat(ModelDir, csizestr);
 		strcat(ModelDir, "_");
 		strcat(ModelDir, radiusstr);
-		strcat(ModelDir, ".yml");
-
-		getEigen();
+		strcat(ModelDir, ".xml");
 	}
 
 	void LBPSVM::getEigen(){
-		/*
+/*
 		Mat hist;
 	    std::vector<int> vec;
 	    LoadSample(hist, vec, 0);
 	    int n_comp = 36;
 	    PCA pca(hist, Mat(), PCA::DATA_AS_ROW, n_comp);
         EigenMat = pca.eigenvectors.clone();
-		*/
-	    const char* EigenMatDir = "./../data/eigenMat.yml";
+*/
 	    cv::FileStorage efile(EigenMatDir, cv::FileStorage::READ);
 		efile["data"] >> EigenMat;
 	}
@@ -316,7 +316,7 @@ namespace lbp{
 
 	int LBPSVM::Predict(const char* fname, const char* model) {
 		Mat img = imread(fname, 0), dst;
-		assert(img.rows == img.cols);
+		assert(img.rows > 0  &&  img.rows == img.cols);
 		if (img.rows != 100)
 			resize(img, img, Size(100, 100));
 		Ptr<ml::SVM> SVC = ml::SVM::create();
@@ -359,9 +359,10 @@ namespace lbp{
 	    Ptr<ml::SVM> SVC = ml::SVM::create();
     	SVC = ml::SVM::load(ModelDir);
     	LBP A(8, radius, csize);
-		cv::Mat dst;
+		cv::Mat dst, hist_full;
 		A.RILBP(img, dst);
-		Mat hist = A.RILBPHistogram(dst) * EigenMat.t();
+		hist_full = A.RILBPHistogram(dst);
+		Mat hist = hist_full * EigenMat.t();
 		float response = SVC->predict(hist);
 		//printf("%.2f\n", response);
 		return response;

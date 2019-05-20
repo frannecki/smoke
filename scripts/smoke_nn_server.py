@@ -6,20 +6,24 @@ import numpy as np
 import cv2 as cv
 import keras
 import tensorflow as tf
+from smoke.srv import *
 from keras import backend as K
 from keras.models import load_model
 from cv_bridge import CvBridge, CvBridgeError
+import keras.backend.tensorflow_backend as KTF
 
 class smoke_nn_server():
 
     def __init__(self):
+        # print('{}/../models/nn/model.24.h5'.format(sys.path[0]))
+        KTF.set_session(tf.Session(config=tf.ConfigProto(device_count={'cpu':0})))
         self.model = load_model('{}/../models/nn/model.24.h5'.format(sys.path[0]))
         self.bridge = CvBridge()
         print('model loaded')
         self.graph = tf.get_default_graph()
         rospy.init_node('smoke_nn_server')
-        topicname = rospy.get_param('/smoke/services/image_svm_nn_srv/name');
-        rospy.Service(topicname, smoke.srv.darknet_svm_node, self.callback_nn)
+        topicname = rospy.get_param('/smoke/services/image_svm_nn_srv/name')
+        rospy.Service(topicname, darknet_svm_node, self.callback_nn)
         print ('Ready to monitor.')
         rospy.spin()
 
@@ -50,7 +54,7 @@ class smoke_nn_server():
             arr.append(bimg_scale)
         arr = np.asarray(arr)
         res = self.pred(arr)
-        return smoke.srv.darknet_svm_nodeResponse(res)  ## ??
+        return darknet_svm_nodeResponse(res)
 
 
 if __name__ == "__main__":
