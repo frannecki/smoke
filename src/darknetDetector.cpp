@@ -52,6 +52,7 @@ void darknet_svm::init(){
     imgCallbackDelay = RateNP(15.);
     htthresh = 20.;
     wdthresh = 20.;
+    chim_prob_thresh = .8;
 
     img_bbox_sub = nh_.subscribe<smoke::BboxImage>(bboxImgSub, bboxImgSub_qs, &darknet_svm::bboxImgCallback, this);
     //ros::spinOnce();
@@ -115,7 +116,9 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
         else continue;
         for(int j = i+1; j < bounding_boxes.size(); ++j){
             // rid of redundant bboxes (according to overlap)
-            if(bounding_boxes[j].Class == "chimney"){
+            if(bounding_boxes[j].Class == "chimney" && 
+               bounding_boxes[j].probability >= chim_prob_thresh)
+            {
                 chimbox.push_back(bounding_boxes[j]);
                 continue;
             }

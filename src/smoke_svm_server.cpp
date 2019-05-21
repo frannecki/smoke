@@ -43,12 +43,12 @@ bool darknetsvmcallback(smoke::darknet_svm_node::Request &req,
         int width = bounding_boxes[i].xmax - bounding_boxes[i].xmin + 1;
         int height = bounding_boxes[i].ymax - bounding_boxes[i].ymin + 1;
         // printf("%d %d\n", width, height);
-        obj = img_gray(cv::Rect(xmin, ymin, width, height));
         try{
+            obj = img_gray(cv::Rect(xmin, ymin, width-1, height-1));
             cv::resize(obj, tmp, Size(100, 100));
         }
         catch(cv::Exception &e){
-            ROS_ERROR("[smoke_svm_server] Size of image: (%d, %d) .%s", obj.rows, obj.cols, e.what());
+            ROS_ERROR("[smoke_svm_server] (xmax, ymax): (%d, %d) .%s", ymin+height, xmin+width, e.what());
         }
         float response = SVM->Predict(tmp);
         resp[i] = static_cast<int>(response);
@@ -69,6 +69,7 @@ bool darknetsvmcallback(smoke::darknet_svm_node::Request &req,
             std::vector<int> nnpos = svm_nn_srv->response.res;
             for(int i = 0; i < nnpos.size(); ++i){
                 resp[bbox_indexes[i]] = nnpos[i];
+                ROS_INFO("[smoke_svm_server] Detected bounding box with smoke.\n");
             }
         }
         else{

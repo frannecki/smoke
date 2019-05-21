@@ -88,6 +88,7 @@ private:
 
     int count;
     float htthresh, wdthresh;
+    float chim_prob_thresh;
 
     // log file writer
     std::ofstream logwriter;

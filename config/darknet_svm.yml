@@ -58,7 +58,7 @@ svm:
   modelpath: /home/fran/ROS/catkin_ws/src/smoke/models/svm/model_
 
   eigen:
-    eigenmat: /home/fran/ROS/catkin_ws/src/smoke/data/eigenMat.yml
+    eigenmat: /home/fran/ROS/catkin_ws/src/smoke/data/EigenData.yml
 
   lbp_params:
     cellsize: 25
