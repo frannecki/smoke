@@ -2,6 +2,7 @@
 import smoke
 import rospy
 import os,sys
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import numpy as np
 import cv2 as cv
 import keras
@@ -33,15 +34,13 @@ class smoke_nn_server():
         res = []
         with self.graph.as_default():
             pre = self.model.predict_classes(arr)
-            for pred in enumerate(pre):
-                res.append(np.argmax(pred))
-        return res
+        return list(pre)
 
     def callback_nn(self, req):
         cv_image = self.bridge.imgmsg_to_cv2(req.img, 'bgr8')
         bboxset = req.bboxes.bounding_boxes
         arr = []
-        # rospy.loginfo('[smoke_nn_server] Received {} suspected bounding boxes'.format(len(bboxset)))
+        # rospy.loginfo('[smoke_nn_server] Received {} suspicious bounding boxes'.format(len(bboxset)))
         for bbox in bboxset:
             xmin = bbox.xmin
             xmax = bbox.xmax

@@ -50,15 +50,15 @@ actions:
 logs:
   
   smoke_warning: 
-    path: ../log
-    logfile: ../log/warnings.log
+    path: /home/fran/ROS/catkin_ws/src/smoke/log
+    logfile: /home/fran/ROS/catkin_ws/src/smoke/log/warnings.log
 
 svm:
 
   modelpath: /home/fran/ROS/catkin_ws/src/smoke/models/svm/model_
 
   eigen:
-    eigenmat: /home/fran/ROS/catkin_ws/src/smoke/data/EigenData.yml
+    eigenmat: /home/fran/ROS/catkin_ws/src/smoke/data/eigenmat.yml
 
   lbp_params:
     cellsize: 25

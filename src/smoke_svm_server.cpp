@@ -63,13 +63,18 @@ bool darknetsvmcallback(smoke::darknet_svm_node::Request &req,
     if(bbox_indexes.size() > 0){
         cv_bridge::CvImage(std_msgs::Header(), sensor_msgs::image_encodings::BGR8, img).toImageMsg(svm_nn_srv->request.img);
         svm_nn_srv->request.bboxes.bounding_boxes = bounding_boxes_u;
-        ROS_INFO("[smoke_svm_server] Detected %lu suspicious boxes\n", bbox_indexes.size());
+        ROS_INFO("[smoke_svm_server] Detected %lu suspicious box(es).", bbox_indexes.size());
         if(sc->call(*svm_nn_srv)){
+            bool flag = false;
             ROS_INFO("[smoke_svm_server] Succeeded in calling nn server.");
             std::vector<int> nnpos = svm_nn_srv->response.res;
             for(int i = 0; i < nnpos.size(); ++i){
                 resp[bbox_indexes[i]] = nnpos[i];
-                ROS_INFO("[smoke_svm_server] Detected bounding box with smoke.\n");
+                if(nnpos[i] == 1)
+                    flag = true;
+            }
+            if(flag){
+                ROS_INFO("[smoke_svm_server][Warning] Detected bounding box with smoke.\n");
             }
         }
         else{

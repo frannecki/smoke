@@ -218,7 +218,7 @@ namespace lbp{
 */
 	    cv::FileStorage efile(EigenMatDir, cv::FileStorage::READ);
 		efile["data"] >> EigenMat;
-		printf("[INFO] [LBPSVM] EigenMat loaded (%s).\n", EigenMatDir);
+		printf("[ INFO ] [LBPSVM] EigenMat loaded (%s).\n", EigenMatDir);
 	}
 
 	void LBPSVM::randArrange01(std::vector<int> &vec) {

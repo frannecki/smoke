@@ -15,6 +15,7 @@ darknet_svm::~darknet_svm(){
         isNodeRunning = false;
     }
     pthread_join(mainThread, NULL);
+    logwriter.close();
 }
 
 void darknet_svm::init(){
@@ -39,8 +40,10 @@ void darknet_svm::init(){
     nh_.param("/smoke/services/img_bbox_sub/img_darknet_svm_srv/name", darknetSVMSrv, std::string("/kinectdev/smoke/smoke_darknet_svm_srv"));
     sc = nh_.serviceClient<smoke::darknet_svm_node>(darknetSVMSrv);
 
-    nh_.param("/smoke/logs/smoke_warning/path", logpath, std::string("../log"));
-    nh_.param("/smoke/logs/smoke_warning/logfile", logfile, std::string("../log/warnings.log"));
+    nh_.param("/smoke/logs/smoke_warning/path", logpath, std::string("./../log"));
+    nh_.param("/smoke/logs/smoke_warning/logfile", logfile, std::string("./../log/warnings.log"));
+    ROS_INFO("[darknetDetector] log file path: %s", logfile.c_str());
+    logwriter.open(logfile.c_str(), std::ios::app);
 
     count = 0;
     alarm.data = false;
@@ -202,21 +205,19 @@ void *darknet_svm::alarmInThread(void* param){
     ds->alarm_pub.publish(ds->alarm);
     if(ds->alarm.data == true){
         boost::unique_lock<boost::shared_mutex> lockLogwriterStatus(ds->mutexLogWriterStatus);
-        ds->logwriter.open(ds->logfile, std::ios::app);
         ROS_INFO("[darknetDetector] Alarm! Smoke occurred.");
-        ds->logwriter << "[Alarm]Smoke occurred" << std::endl;
+        ds->logwriter << "[darknetDetector][Alarm] Smoke occurred" << std::endl;
         int count_ = 0;
         for(int i = 0; i < ds->bounding_box_u_response.size(); ++i){
             if(ds->bounding_box_u_response[i] == 1){
                 ROS_INFO("[darknetDetector] Position %d: (%ld, %ld) -> (%ld, %ld)", ++count_, 
                     ds->bounding_boxes_u[i].xmin, ds->bounding_boxes_u[i].ymin, ds->bounding_boxes_u[i].xmax, ds->bounding_boxes_u[i].ymax);
 
-                ds->logwriter << std::setw(100) << "[Alarm][Position] " << count_ \
+                ds->logwriter << std::setiosflags(std::ios::left) << "[darknetDetector][Alarm][Position] " << count_ \
                               << ": (" << ds->bounding_boxes_u[i].xmin << ", " << ds->bounding_boxes_u[i].ymin << ") -> " \
                               << "(" << ds->bounding_boxes_u[i].xmax << ", " << ds->bounding_boxes_u[i].ymin << ")" << std::endl;
             }
         }
-        ds->logwriter.close();
     }
 }
 
