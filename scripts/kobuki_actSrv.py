@@ -4,10 +4,8 @@ from std_msgs.msg import Bool
 import time
 from geometry_msgs.msg import Twist
 from math import radians
-import roslib
 import actionlib
 import smoke.msg
-roslib.load_manifest('smoke')
 
 class kobuki_actSrv(object):
     def __init__(self, name):
@@ -26,21 +24,24 @@ class kobuki_actSrv(object):
     def kobukialarmcallback(self, goal):
         self._feedback.fback = 0.0
         self._res.res = 0
-        rospy.loginfo('{0} Progress: {1}'.format(self._name, self._feedback.fback))
         for i in range(0, goal.order):
             self.react.publish(self.move_cmd)
-            self._feedback.fback = (i+1) / goal.order
+            self._feedback.fback = float(i+1) / float(goal.order)
+            rospy.loginfo('[kobuki_action_node] {0} Progress: {1}'.format(self._name, self._feedback.fback))
             self.server.publish_feedback(self._feedback)
             self.rate.sleep()
 
         if(self._feedback.fback == 1.0):
-            self._res.res = 1
+            self._res.res = 1.
             self.server.set_succeeded(self._res)
-            rospy.loginfo('{0} Complete: {1}'.format(self._name, self._res.res))
+            rospy.loginfo('[kobuki_action_node] {0} complete: {1}'.format(self._name, self._res.res))
 
 if __name__ == '__main__':
     rospy.init_node('kobuki_actSrv', anonymous=True)
-    name = rospy.get_param('/smoke/actions/kobuki_alarm/name')
+    try:
+        name = rospy.get_param('/smoke/actions/kobuki_alarm/name')
+    except KeyError:
+        name = '/kinectdev/smoke/kobuki_alarm'
     kobuki_actSrv(name)
     #kobuki_actSrv('/kinectdev/smoke/kobukiAlarm')
     rospy.spin()

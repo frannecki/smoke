@@ -23,9 +23,12 @@ class smoke_nn_server():
         print('model loaded')
         self.graph = tf.get_default_graph()
         rospy.init_node('smoke_nn_server')
-        topicname = rospy.get_param('/smoke/services/image_svm_nn_srv/name')
+        try:
+            topicname = rospy.get_param('/smoke/services/image_svm_nn_srv/name')
+        except KeyError:
+            topicname = '/kinectdev/smoke/smoke_svm_nn_srv'
         rospy.Service(topicname, darknet_svm_node, self.callback_nn)
-        print ('Ready to monitor.')
+        rospy.loginfo('[smoke_nn_server_node] Ready to monitor.')
         rospy.spin()
 
     def pred(self, arr):

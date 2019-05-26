@@ -20,4 +20,9 @@
   <!--darknet_detetor-->
   <node pkg="smoke" type="darknet_detector" name="darknet_detector_node" output="screen" required="true"/>
 
+  <!--alarm-->
+  <node pkg="smoke" type="alarm_sub.py" name="alarm_sub_node" output="log" />
+
+  <!--robot action-->
+  <node pkg="smoke" type="kobuki_actSrv.py" name="kobuki_action_node" output="log" \>
 </launch>
