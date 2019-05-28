@@ -17,7 +17,7 @@ class kobuki_actSrv(object):
 
         self.react = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size = 10)
         self.move_cmd = Twist()
-        self.move_cmd.linear.x = 0
+        self.move_cmd.linear.x = 0.
         self.rate = rospy.Rate(1) # 5Hz
         self.server.start()
 
