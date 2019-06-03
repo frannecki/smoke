@@ -9,13 +9,14 @@ std::string current_std_time(){
     std::string current_time;
     std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     char *timestr = std::ctime(&end_time);
-    for(int i = 0; i < strlen(timestr), timestr[i] != '\0';){
+    for(int i = 0; i < strlen(timestr)-1, timestr[i] != '\n';){
         if(timestr[i] == ' '){
             current_time.push_back('_');
             while(timestr[++i] == ' ');
         }
         else current_time.push_back(timestr[i++]);
     }
+    current_time += std::string(".log");
     return current_time;
 }
 
