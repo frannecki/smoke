@@ -51,7 +51,7 @@ logs:
   
   smoke_warning: 
     path: /home/fran/ROS/catkin_ws/src/smoke/log
-    logfile: /home/fran/ROS/catkin_ws/src/smoke/log/warnings.log
+    logfile: /home/fran/ROS/catkin_ws/src/smoke/log/warnings_
 
 svm:
 

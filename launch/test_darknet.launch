@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--launch file for smoke package.-->
+<launch>
+
+  <!-- ROS and network parameter files -->
+  <arg name="ros_param_file" default="$(find smoke)/config/darknet_svm.yml"/>
+
+  <!-- Load parameters -->
+  <rosparam command="load" ns="smoke" file="$(arg ros_param_file)"/>
+  
+  <rosparam command="load" ns="smoke" file="$(arg ros_param_file)"/>
+
+  <include file="$(find smoke)/launch/darknet_ros_smoke.launch"></include>
+
+  <!--video stream publisher-->
+  <node pkg="smoke" type="videostr" name="video_stream_node" output="screen" required="true"/>
+
+</launch>

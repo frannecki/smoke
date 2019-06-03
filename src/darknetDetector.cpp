@@ -5,6 +5,20 @@ bool cmp_by_prob(const smoke::BoundingBox& bbox1, const smoke::BoundingBox& bbox
     return bbox1.probability > bbox2.probability;
 }
 
+std::string current_std_time(){
+    std::string current_time;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    char *timestr = std::ctime(&end_time);
+    for(int i = 0; i < strlen(timestr), timestr[i] != '\0';){
+        if(timestr[i] == ' '){
+            current_time.push_back('_');
+            while(timestr[++i] == ' ');
+        }
+        else current_time.push_back(timestr[i++]);
+    }
+    return current_time;
+}
+
 darknet_svm::darknet_svm(ros::NodeHandle nh): nh_(nh){
     init();
 };
@@ -41,7 +55,8 @@ void darknet_svm::init(){
     sc = nh_.serviceClient<smoke::darknet_svm_node>(darknetSVMSrv);
 
     nh_.param("/smoke/logs/smoke_warning/path", logpath, std::string("./../log"));
-    nh_.param("/smoke/logs/smoke_warning/logfile", logfile, std::string("./../log/warnings.log"));
+    nh_.param("/smoke/logs/smoke_warning/logfile", logfile, std::string("./../log/warnings_"));
+    logfile += current_std_time();
     ROS_INFO("[darknetDetector] log file path: %s", logfile.c_str());
     logwriter.open(logfile.c_str(), std::ios::app);
 
@@ -213,7 +228,10 @@ void *darknet_svm::alarmInThread(void* param){
                 ROS_INFO("[darknetDetector] Position %d: (%ld, %ld) -> (%ld, %ld)", ++count_, 
                     ds->bounding_boxes_u[i].xmin, ds->bounding_boxes_u[i].ymin, ds->bounding_boxes_u[i].xmax, ds->bounding_boxes_u[i].ymax);
 
-                ds->logwriter << std::setiosflags(std::ios::left) << "[darknetDetector][Alarm][Position] " << count_ \
+                std::time_t currtime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                char *timestr = std::ctime(&currtime);
+                timestr[strlen(timestr)-1] = '\0';
+                ds->logwriter << std::setiosflags(std::ios::left) << "[darknetDetector][Alarm " << timestr << "][Position] " << count_ \
                               << ": (" << ds->bounding_boxes_u[i].xmin << ", " << ds->bounding_boxes_u[i].ymin << ") -> " \
                               << "(" << ds->bounding_boxes_u[i].xmax << ", " << ds->bounding_boxes_u[i].ymin << ")" << std::endl;
             }
