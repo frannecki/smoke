@@ -1,5 +1,5 @@
 # define goal
-int32 order
+float32 order
 ---
 # define result
 int32 res

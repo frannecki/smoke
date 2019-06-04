@@ -9,8 +9,9 @@
   <rosparam command="load" ns="smoke" file="$(arg ros_param_file)"/>
 
   <!--robot action-->
-  <node pkg="smoke" type="kobuki_actTest.py" name="kobuki_actclient_node" output="screen" />
-
+  <!--node pkg="smoke" type="kobuki_actTest.py" name="kobuki_actclient_node" output="screen" /-->
+  <node pkg="smoke" type="action_buttons.py" name="kobuki_buttons_node" output="screen" />
+  
   <!--robot action-->
   <node pkg="smoke" type="kobuki_actSrv.py" name="kobuki_action_node" output="screen" />
 </launch>

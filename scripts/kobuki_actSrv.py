@@ -18,23 +18,25 @@ class kobuki_actSrv(object):
         self.react = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size = 10)
         self.move_cmd = Twist()
         self.move_cmd.linear.x = 0.
-        self.rate = rospy.Rate(1) # 5Hz
+        self.move_cmd.angular.z = 1.
+        self.rate = rospy.Rate(10) # 10Hz
         self.server.start()
 
     def kobukialarmcallback(self, goal):
         self._feedback.fback = 0.0
         self._res.res = 0
-        for i in range(0, goal.order):
+        #rospy.loginfo('order of goal: {}'.format(goal.order))
+        for i in range(0, int(goal.order * 10)):
             self.react.publish(self.move_cmd)
-            self._feedback.fback = float(i+1) / float(goal.order)
-            rospy.loginfo('[kobuki_action_node] {0} Progress: {1}'.format(self._name, self._feedback.fback))
+            self._feedback.fback += 1 / float(goal.order * 10)
+            #rospy.loginfo('[kobuki_action_node] {0} Progress: {1}'.format(self._name, self._feedback.fback))
             self.server.publish_feedback(self._feedback)
             self.rate.sleep()
 
-        if(self._feedback.fback == 1.0):
-            self._res.res = 1.
-            self.server.set_succeeded(self._res)
-            rospy.loginfo('[kobuki_action_node] {0} complete: {1}'.format(self._name, self._res.res))
+        self._res.res = 1.
+        self.server.set_succeeded(self._res)
+        rospy.loginfo('[kobuki_action_node] {0} complete: {1}'.format(self._name, self._res.res))
+            
 
 if __name__ == '__main__':
     rospy.init_node('kobuki_actSrv', anonymous=True)
