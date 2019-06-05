@@ -48,8 +48,8 @@ actions:
     name: /kinectdev/smoke/kobuki_alarm
 
 nav:
-  route: /home/fran/ROS/catkin_ws/src/smoke/config/jun05.yaml
-  veltopic: /cmd_vel
+  route: /home/fran/ROS/catkin_ws/src/smoke/config/jun06.yaml
+  veltopic: cmd_vel_mux/input/navi
 
 logs:
   

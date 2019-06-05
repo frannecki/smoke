@@ -43,7 +43,10 @@
    roslaunch rbx1_nav gmapping_demo.launch
 
    # view in rviz (Remember to keep the environment variables consistent with the workspace of package 'rbx1')
-   roslaunch turtlebot_rviz_launchers view_navigation.launch 
+   roslaunch turtlebot_rviz_launchers view_navigation.launch
+   
+   # save scanned map
+   rosrun map_server map_saver map
    ```
 
 2. adaptive localization / autonomous driving

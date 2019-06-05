@@ -4,15 +4,19 @@
 
   <!-- ROS and network parameter files -->
   <arg name="ros_param_file" default="$(find smoke)/config/darknet_svm.yml"/>
+  <!--arg name="indoor_map_file" default="$(find smoke)/config/apr02.yaml"/-->
+  <arg name="indoor_map_file" default="/home/fran/ROS/maps/jun06_map.yaml"/>
 
   <!-- Load parameters -->
   <rosparam command="load" ns="smoke" file="$(arg ros_param_file)"/>
   
   <!--adaptive Monte-Carlo localization-->
-  <include file="$(find rbx1_bringup)/launch/fake_turtlebot.launch"></include>
-  <include file="$(find rbx1_nav)/launch/fake_amcl.launch"></include>
-  <!--include file="$(find turtlebot_bringup)/launch/minimal.launch"></include-->
-  <!--include file="$(find turtlebot_navigation)/launch/amcl_demo.launch"></include-->
+  <!--include file="$(find rbx1_bringup)/launch/fake_turtlebot.launch"></include>
+  <include file="$(find rbx1_nav)/launch/fake_amcl.launch"></include-->
+  <include file="$(find turtlebot_bringup)/launch/minimal.launch"></include>
+  <include file="$(find turtlebot_navigation)/launch/amcl_demo.launch">
+    <arg name="map_file" value="$(arg indoor_map_file)" />
+  </include>
 
   <!--robot action-->
   <node pkg="smoke" type="follow_the_route.py" name="cycle_around_node" output="log" />
