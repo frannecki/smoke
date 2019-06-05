@@ -59,15 +59,15 @@ We can launch a python script to adjust the real time velocity of the robot.
    ```python
     ## amcl should be launched as the action server
     self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)  # topic: 'move_base'
-	self.move_base.wait_for_server(rospy.Duration(5))
+    self.move_base.wait_for_server(rospy.Duration(5))
     goal = MoveBaseGoal()
-	goal.target_pose.header.frame_id = 'map'
-	goal.target_pose.header.stamp = rospy.Time.now()
+    goal.target_pose.header.frame_id = 'map'
+    goal.target_pose.header.stamp = rospy.Time.now()
     goal.target_pose.pose = Pose(Point(pos['x'], pos['y'], 0.000),
                                      Quaternion(quat['r1'], quat['r2'], quat['r3'], quat['r4']))
 
     self.move_base.send_goal(goal)
-	success = self.move_base.wait_for_result(rospy.Duration(60))
+    success = self.move_base.wait_for_result(rospy.Duration(60))
     state = self.move_base.get_state()
    ```
 
@@ -77,4 +77,8 @@ We can launch a python script to adjust the real time velocity of the robot.
    from geometry_msgs.msg import Twist
    topic = 'cmd_vel_mux/input/navi'  # '/cmd_vel' for rbx1 simulator
    cmd_vel = rospy.Publisher(topic, Twist, queue_size=10)
+   move_cmd = Twist()
+   move_cmd.linear.x = 0.5
+   move_cmd.angular.z = 0.5
+   cmd_vel.publish(move_cmd)
    ```
