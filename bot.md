@@ -40,9 +40,9 @@
    roslaunch turtlebot_navigation gmapping_demo.launch
    
    # for rbx1 simulator
-   roslaunch rbx1_nav gmapping.launch
+   roslaunch rbx1_nav gmapping_demo.launch
 
-   # view in rviz
+   # view in rviz (Remember to keep the environment variables consistent with the workspace of package 'rbx1')
    roslaunch turtlebot_rviz_launchers view_navigation.launch 
    ```
 

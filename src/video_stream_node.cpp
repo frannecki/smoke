@@ -37,6 +37,11 @@ int main(int argc, char **argv){
     //cv::namedWindow("demo", cv::WINDOW_AUTOSIZE);
     while(ros::ok()){
         vicap >> frame;
+        if(frame.rows == 0 || frame.cols == 0){
+            vicap.release();
+            vicap = cv::VideoCapture(fname);
+            continue;
+        }
         header.seq = ++count;
         header.stamp = ros::Time::now();
         img_bridge = cv_bridge::CvImage(header, "bgr8", frame);

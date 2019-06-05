@@ -8,16 +8,17 @@ import actionlib
 import smoke.msg
 
 class kobuki_actSrv(object):
-    def __init__(self, name):
+    def __init__(self, name, topic_vel):
         self._name = name
+        self.topic_vel = topic_vel
         self.server = actionlib.SimpleActionServer(self._name, smoke.msg.AlarmAction, 
             execute_cb=self.kobukialarmcallback, auto_start=False)
         self._feedback = smoke.msg.AlarmFeedback()
         self._res = smoke.msg.AlarmResult()
 
-        self.react = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size = 10)
+        self.react = rospy.Publisher(topic_vel, Twist, queue_size = 10)
         self.move_cmd = Twist()
-        self.move_cmd.linear.x = 0.
+        self.move_cmd.linear.x = .0
         self.move_cmd.angular.z = 1.
         self.rate = rospy.Rate(10) # 10Hz
         self.server.start()
@@ -44,6 +45,11 @@ if __name__ == '__main__':
         name = rospy.get_param('/smoke/actions/kobuki_alarm/name')
     except KeyError:
         name = '/kinectdev/smoke/kobuki_alarm'
-    kobuki_actSrv(name)
+    try:
+        topic_vel = rospy.get_param('/smoke/nav/veltopic')
+    except KeyError:
+        topic_vel = 'cmd_vel_mux/input/navi'
+    
+    kobuki_actSrv(name, topic_vel)
     #kobuki_actSrv('/kinectdev/smoke/kobukiAlarm')
     rospy.spin()

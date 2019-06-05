@@ -2,6 +2,7 @@
 import rospy
 import actionlib
 import smoke.msg
+import time
 
 class kobuki_actclient():
     def __init__(self, ntime):
@@ -24,5 +25,6 @@ class kobuki_actclient():
 if __name__ == '__main__':
     rospy.init_node('kobuki_action_test_node')
     client = kobuki_actclient(2.)
+    time.sleep(8)
     client.pub_action()
     

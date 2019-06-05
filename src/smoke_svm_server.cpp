@@ -74,7 +74,7 @@ bool darknetsvmcallback(smoke::darknet_svm_node::Request &req,
                     flag = true;
             }
             if(flag){
-                ROS_INFO("[smoke_svm_server][Warning] Detected bounding box with smoke.\n");
+                ROS_INFO("[smoke_svm_server] [Warning] Detected bounding box with smoke.\n");
             }
         }
         else{

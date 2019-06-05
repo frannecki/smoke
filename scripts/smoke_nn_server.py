@@ -45,11 +45,11 @@ class smoke_nn_server():
         arr = []
         # rospy.loginfo('[smoke_nn_server] Received {} suspicious bounding boxes'.format(len(bboxset)))
         for bbox in bboxset:
-            xmin = bbox.xmin
-            xmax = bbox.xmax
-            ymin = bbox.ymin
-            ymax = bbox.ymax
-            bimg = cv_image[xmin:xmax, ymin:ymax, :]
+            xmin = max(bbox.xmin, 0)
+            xmax = min(bbox.xmax, cv_image.shape[1]-1)
+            ymin = max(bbox.ymin, 0)
+            ymax = min(bbox.ymax, cv_image.shape[0]-1)
+            bimg = cv_image[ymin:ymax, xmin:xmax, :]
             bimg_scale = cv.resize(bimg, (100, 100), cv.INTER_NEAREST)
             arr.append(bimg_scale)
         arr = np.asarray(arr)

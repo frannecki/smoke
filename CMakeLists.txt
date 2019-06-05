@@ -79,7 +79,7 @@ set(THREADS_USE_PTHREADS_WIN32 true)
                 ${CMAKE_CURRENT_SOURCE_DIR}/src/darknetDetector.cpp)
 
     add_library(lbp_lib
-                ${CMAKE_CURRENT_SOURCE_DIR}/src/LBP.cpp)
+                ${CMAKE_CURRENT_SOURCE_DIR}/src/local_binary_pattern.cpp)
     
     target_link_libraries(${PROJECT_NAME}_lib
         freenect

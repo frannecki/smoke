@@ -5,6 +5,7 @@ ROS package for smoke detection and recognition with Turtlebot (__not complete__
 * ROS kinetic
 * [darknet_ros](https://github.com/leggedrobotics/darknet_ros)
 * OpenCV (>=3.3.0)
+* [rbx1](https://github.com/pirobot/rbx1) (optional)
 
 ## Usage
 * launch webcam using [usb_cam](https://github.com/ros-drivers/usb_cam) package
@@ -13,10 +14,6 @@ ROS package for smoke detection and recognition with Turtlebot (__not complete__
   roslaunch darknet_ros darknet_ros.launch
   ```
 * launch nodes of this package
-  * launch all nodes
-    ```shell
-    roslaunch smoke smoke.launch
-    ```
   * launch darknetDetector node
     ```shell
     rosrun smoke darknet_svm_node
@@ -34,6 +31,22 @@ ROS package for smoke detection and recognition with Turtlebot (__not complete__
     rosrun smoke alarm_sub.py
     ```
   
+* launch files
+  * smoke.1.launch
+    test with real smoke and real robot
+
+  * darknet_ros_smoke.launch
+    launch darknet-ros
+
+  * test_darknet.launch
+    test the object detection framework
+
+  * test_act.launch
+    test the action server for robot pose inference
+
+  * test_srv.launch
+    test the service '/kinectdev/smoke/smoke_svm'
+
   You can modify the `.launch` file to specify with nodes to run.
 
 ## Messages, Services and Actions

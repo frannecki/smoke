@@ -129,7 +129,9 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
         int ymax_1 = bounding_boxes[i].ymax;
         float height_1 = static_cast<float>(std::max(ymax_1-ymin_1+1, 0));
         float width_1 = static_cast<float>(std::max(xmax_1-xmin_1+1, 0));
-        if(overlap[i] == 0 && bounding_boxes[i].Class == "smoke" && height_1 >= htthresh && width_1 >=wdthresh){
+        if(overlap[i] == 0 && bounding_boxes[i].Class == "smoke" && 
+            /*bounding_boxes[i].probability > .7 &&*/ height_1 >= htthresh && width_1 >=wdthresh)
+        {    
             bounding_boxes_tmp.push_back(bounding_boxes[i]);
         }
         else continue;
@@ -174,7 +176,7 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
             int xmax_smk = bounding_boxes_tmp[j].xmax;
             int ymin_smk = bounding_boxes_tmp[j].ymin;
             int ymax_smk = bounding_boxes_tmp[j].ymax;
-            if(ymax_smk > static_cast<float>(ymax_chim+ymin_chim) / 2)  continue;
+            if(ymax_smk > (ymax_chim + ymin_chim) / 2)  continue;
             else if(ymin_smk > ymin_chim)  continue;
             else if(xmax_smk <= xmin_chim || xmin_smk >= xmax_chim)  continue;
             else  vapor[j] = 1;

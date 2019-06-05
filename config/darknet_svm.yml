@@ -47,6 +47,10 @@ actions:
   kobuki_alarm:
     name: /kinectdev/smoke/kobuki_alarm
 
+nav:
+  route: /home/fran/ROS/catkin_ws/src/smoke/config/jun05.yaml
+  veltopic: /cmd_vel
+
 logs:
   
   smoke_warning: 

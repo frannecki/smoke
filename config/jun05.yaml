@@ -1,0 +1,3 @@
+- {filename: 'dumpster.png', position: { x: 0.234, y: 3.98}, quaternion: {r1: 0, r2: 0, r3: -0.628, r4: 0.778}}
+- {filename: 'cube_20k.png', position: { x: -0.67, y: -0.529}, quaternion: {r1: 0, r2: 0, r3: 0.936, r4: 0.353}}
+- {filename: 'bookshelf.png', position: { x: -1.88, y: 2.38}, quaternion: {r1: 0, r2: 0, r3: 0.904, r4: -0.427}}
