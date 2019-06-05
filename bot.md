@@ -55,6 +55,7 @@
 ## Control with scripts
 We can launch a python script to adjust the real time velocity of the robot.
 1. Autonomous navigation
+   
    Given a point on the map, the robot could plan a path and navigate itself to the destination.
    ```python
    ## amcl should be launched as the action server
@@ -73,6 +74,7 @@ We can launch a python script to adjust the real time velocity of the robot.
    ```
 
 2. Specify velocity (linear and angular)
+   
    The cmd_vel client could preempt the navigation action goals.
    ```python
    from geometry_msgs.msg import Twist
