@@ -57,18 +57,19 @@ We can launch a python script to adjust the real time velocity of the robot.
 1. Autonomous navigation
    Given a point on the map, the robot could plan a path and navigate itself to the destination.
    ```python
-    ## amcl should be launched as the action server
-    self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)  # topic: 'move_base'
-    self.move_base.wait_for_server(rospy.Duration(5))
-    goal = MoveBaseGoal()
-    goal.target_pose.header.frame_id = 'map'
-    goal.target_pose.header.stamp = rospy.Time.now()
-    goal.target_pose.pose = Pose(Point(pos['x'], pos['y'], 0.000),
-                                     Quaternion(quat['r1'], quat['r2'], quat['r3'], quat['r4']))
+   ## amcl should be launched as the action server
+   from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+   from geometry_msgs.msg import Pose, Point, Quaternion
+   move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)  # topic: 'move_base'
+   move_base.wait_for_server(rospy.Duration(5))
+   goal = MoveBaseGoal()
+   goal.target_pose.header.frame_id = 'map'
+   goal.target_pose.header.stamp = rospy.Time.now()
+   goal.target_pose.pose = Pose(Point(pos['x'], pos['y'], 0.000), Quaternion(quat['r1'], quat['r2'], quat['r3'], quat['r4']))
 
-    self.move_base.send_goal(goal)
-    success = self.move_base.wait_for_result(rospy.Duration(60))
-    state = self.move_base.get_state()
+   move_base.send_goal(goal)
+   success = move_base.wait_for_result(rospy.Duration(60))
+   state = move_base.get_state()
    ```
 
 2. Specify velocity (linear and angular)
