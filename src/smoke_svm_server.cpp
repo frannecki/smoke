@@ -35,7 +35,7 @@ bool darknetsvmcallback(smoke::darknet_svm_node::Request &req,
     cv::cvtColor(img, img_gray, cv::COLOR_BGR2GRAY);
 
     // ROS_INFO("[smoke_svm_server] Using saved SVM model: %s; EigenMat: %s", svm_model, eigen_mat.c_str());
-    ROS_INFO("[smoke_svm_server] Received %lu bounding boxes", bounding_boxes.size());
+    // ROS_INFO("[smoke_svm_server] Received %lu bounding box(es)", bounding_boxes.size());
     std::vector<int> resp(bounding_boxes.size(), 0);
     for(int i = 0; i < bounding_boxes.size(); ++i){
         int xmin = bounding_boxes[i].xmin;
@@ -63,10 +63,10 @@ bool darknetsvmcallback(smoke::darknet_svm_node::Request &req,
     if(bbox_indexes.size() > 0){
         cv_bridge::CvImage(std_msgs::Header(), sensor_msgs::image_encodings::BGR8, img).toImageMsg(svm_nn_srv->request.img);
         svm_nn_srv->request.bboxes.bounding_boxes = bounding_boxes_u;
-        ROS_INFO("[smoke_svm_server] Detected %lu suspicious box(es).", bbox_indexes.size());
+        // ROS_INFO("[smoke_svm_server] Detected %lu suspicious box(es).", bbox_indexes.size());
         if(sc->call(*svm_nn_srv)){
             bool flag = false;
-            ROS_INFO("[smoke_svm_server] Succeeded in calling nn server.");
+            // ROS_INFO("[smoke_svm_server] Succeeded in calling nn server.");
             std::vector<int> nnpos = svm_nn_srv->response.res;
             for(int i = 0; i < nnpos.size(); ++i){
                 resp[bbox_indexes[i]] = nnpos[i];

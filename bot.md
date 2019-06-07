@@ -52,7 +52,7 @@
 2. adaptive localization / autonomous driving
    ```shell
    roslaunch turtlebot_navigation amcl_demo map_file:=xx.yaml  # for real robot
-   roslaunch rbx1_nav fake_amcl.launch map_file:=xx.yaml  # for rbx1 simulator
+   roslaunch rbx1_nav fake_amcl.launch  # for rbx1 simulator
    ```
 
 ## Control with scripts

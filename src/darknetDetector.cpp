@@ -95,11 +95,7 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
         ROS_ERROR("[darknetDetector] cv_bridge exception: %s", e.what());
         return;
     }
-    if(img_bridge_sub){
-        boost::unique_lock<boost::shared_mutex> lockSubscriber(mutexSubscriberStatus);
-        subscriberStatus = true;
-    }
-    else{
+    if(!img_bridge_sub){
         {
             boost::unique_lock<boost::shared_mutex> lockSubscriber(mutexSubscriberStatus);
             subscriberStatus = false;
@@ -186,6 +182,10 @@ void darknet_svm::bboxImgCallback(const smoke::BboxImageConstPtr& msg){
     for(int i = 0; i < bounding_boxes_tmp.size(); ++i){
         if(vapor[i] == 0)
             bounding_boxes_u.push_back(bounding_boxes_tmp[i]);
+    }
+    {
+        boost::unique_lock<boost::shared_mutex> lockSubscriber(mutexSubscriberStatus);
+        subscriberStatus = true;
     }
     imgCallbackDelay.sleep();
 }
@@ -277,9 +277,12 @@ void *darknet_svm::workInThread(void* param){
             ROS_ERROR("[darknetDetector] Failed to start thread (alarmThread).");
             return voidPtr;
         }
-
         pthread_join(callSVMThread, NULL);
         pthread_join(alarmThread, NULL);
+        {
+            boost::unique_lock<boost::shared_mutex> lockSubscriber(ds->mutexSubscriberStatus);
+            ds->subscriberStatus = false;
+        }
         ds->mainThreadDelay.sleep();
     }
 }

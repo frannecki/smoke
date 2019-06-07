@@ -4,7 +4,7 @@
 
   <!-- ROS and network parameter files -->
   <arg name="ros_param_file" default="$(find smoke)/config/darknet_svm.yml"/>
-  <!--arg name="indoor_map_file" default="$(find smoke)/config/apr02.yaml"/-->
+  
   <arg name="indoor_map_file" default="/home/fran/ROS/maps/jun06_map.yaml"/>
 
   <!-- Load parameters -->

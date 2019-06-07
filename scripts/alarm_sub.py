@@ -10,7 +10,7 @@ class listener():
     def __init__(self):
         rospy.on_shutdown(self.shutdown)  # behavior on shutdown
         
-        self.rate = rospy.Rate(.2)
+        self.rate = rospy.Rate(.5)
         try:
             self.alarmSub = rospy.get_param("/smoke/subscribers/alarm_sub/topic")
             self.alarmSub_qs = rospy.get_param("/smoke/subscribers/alarm_sub/queue_size")
@@ -29,7 +29,7 @@ class listener():
         if (msg.data == True):
             rospy.loginfo('[alarm_sub_node] Alarm!')
             print('-----------------------------------')
-            goal = smoke.msg.AlarmGoal(5)
+            goal = smoke.msg.AlarmGoal(2)
             self.client.send_goal(goal)
             self.client.wait_for_result(rospy.Duration.from_sec(5.0))
             self.rate.sleep()
