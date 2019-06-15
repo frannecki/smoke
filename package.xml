@@ -2,7 +2,7 @@
 <package format="2">
   <name>smoke</name>
   <version>0.0.0</version>
-  <description>An ROS package</description>
+  <description>An ROS package for smoke detection</description>
   <maintainer email="fllauren@outlook.com">FrankW</maintainer>
   <license>BSD</license>
 

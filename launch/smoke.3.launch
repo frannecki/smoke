@@ -9,7 +9,8 @@
   <rosparam command="load" ns="smoke" file="$(arg ros_param_file)"/>
 
   <!--Launching camera nodes-->
-  <include file="$(find smoke)/launch/usb_cam.1.launch"></include>
+  <!--include file="$(find smoke)/launch/usb_cam.1.launch"></include-->
+  <include file="$(find freenect_launch)/launch/freenect.launch"></include>
 
   <!--robot bringup and navigation-->
   <include file="$(find rbx1_bringup)/launch/fake_turtlebot.launch"></include>

@@ -3,7 +3,7 @@
 <launch>
 
   <!-- ROS and network parameter files -->
-  <arg name="ros_param_file" default="$(find smoke)/config/darknet_svm.yml"/>
+  <arg name="ros_param_file" default="$(find smoke)/config/darknet_svm_rbx1.yml"/>
 
   <!-- Load parameters -->
   <rosparam command="load" ns="smoke" file="$(arg ros_param_file)"/>
