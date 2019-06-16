@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.5.0)
 project(smoke)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -126,23 +123,28 @@ set(THREADS_USE_PTHREADS_WIN32 true)
     target_link_libraries(srvtest ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${OpenCV_LIBS})
 
     if(Qt5_FOUND)
+      set(CMAKE_AUTOMOC ON)
+      set(CMAKE_AUTOUIC ON)
+      set(CMAKE_AUTORCC ON)
+      
       include_directories(${CMAKE_CURRENT_SOURCE_DIR}/appviz/include)
-
-      file(GLOB QT_FORMS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} appviz/src/*.ui)
+      file(GLOB QT_FORMS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} appviz/include/*.ui)
       file(GLOB QT_RESOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} appviz/resources/*.qrc)
-      file(GLOB_RECURSE QT_MOC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} FOLLOW_SYMLINKS appviz/include/*.h)
-      qt5_add_resources(QT_RESOURCES_CPP ${QT_RESOURCES})
-      qt5_wrap_ui(QT_FORMS_HPP ${QT_FORMS})
-      qt5_wrap_cpp(QT_MOC_CPP ${QT_MOC})
+      file(GLOB_RECURSE QT_MOC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} appviz/include/*.h)
+      #qt5_add_resources(QT_RESOURCES_CPP ${QT_RESOURCES})
+      #qt5_wrap_ui(QT_FORMS_HPP ${QT_FORMS})
+      #qt5_wrap_cpp(QT_MOC_CPP ${QT_MOC})
 
       add_library(appviz_lib
+                  ${QT_FORMS}
                   ${CMAKE_CURRENT_SOURCE_DIR}/appviz/src/mainwindow.cpp
                   ${CMAKE_CURRENT_SOURCE_DIR}/appviz/src/subnode.cpp
                  )
       target_link_libraries(appviz_lib Qt5::Core Qt5::Gui Qt5::Qml Qt5::Quick Qt5::Widgets
           ${QT_LIBRARIES} ${catkin_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
-      add_executable(appviz_node appviz/src/main.cpp ${QT_RESOURCES_CPP} ${QT_FORMS_HPP} ${QT_MOC_CPP})
+      #add_executable(appviz_node appviz/src/main.cpp ${QT_RESOURCES_CPP} ${QT_FORMS_HPP} ${QT_MOC_CPP})
+      add_executable(appviz_node appviz/src/main.cpp ${QT_RESOURCES} ${QT_MOC})
       add_dependencies(appviz_node smoke_gencpp ${smoke_EXPORTED_TARGETS})
       target_link_libraries(appviz_node appviz_lib)
     endif()

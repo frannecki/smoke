@@ -8,7 +8,6 @@
 #include <cv_bridge/cv_bridge.h>
 #include <std_msgs/Bool.h>
 #include <image_transport/image_transport.h>
-#include <qtdemo/alarm.h>
 
 // OpenCV libraries
 #include "opencv2/opencv.hpp"
@@ -30,27 +29,27 @@
 class QNode : public QThread {
     Q_OBJECT
 public:
-	QNode(int argc, char** argv );
-	virtual ~QNode();
-	bool init();
-	bool init(const std::string &master_url, const std::string &host_url);
-	void run();
+    QNode(int argc, char** argv );
+    virtual ~QNode();
+    bool init();
+    bool init(const std::string &master_url, const std::string &host_url);
+    void run();
 
-	/*********************
-	** Logging
-	**********************/
-	QStringListModel* loggingModel();
+    /*********************
+    ** Logging
+    **********************/
+    QStringListModel* loggingModel();
     QPixmap* pixMap();
 
 
 signals:
-	void loggingUpdated();
+    void loggingUpdated();
     void imgUpdated();
     void rosShutdown();
 
 private:
-	int init_argc;
-	char** init_argv;
+    int init_argc;
+    char** init_argv;
     QStringListModel logging_model;
     QPixmap pixmap;
 

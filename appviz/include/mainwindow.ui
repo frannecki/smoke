@@ -14,7 +14,7 @@
    <string>Appviz</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../resources/images.qrc">
     <normaloff>:/images/icon.png</normaloff>:/images/icon.png</iconset>
   </property>
   <property name="locale">
@@ -34,7 +34,7 @@
        <locale language="English" country="UnitedStates"/>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_status">
        <attribute name="title">
@@ -50,7 +50,7 @@
            </sizepolicy>
           </property>
           <property name="title">
-           <string>Logging</string>
+           <string>logging view</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
            <item row="0" column="0">

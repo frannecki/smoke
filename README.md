@@ -10,11 +10,13 @@ ROS package for smoke detection and recognition with Turtlebot.
 * Qt5 (optional)
 
 ## Usage
-1. Compile (within an ROS workspace)
+1. Build libraries and executables (within an ROS workspace)
    ```
    catkin_make -DCATKIN_WHITELIST_PACKAGES="smoke"
    ```
    If you have Qt5 installed, a gui would be built for simple visualization.
+
+   If the first build is not successful, please try again.
 
 2. Run
    * launch webcam using [usb_cam](https://github.com/ros-drivers/usb_cam).

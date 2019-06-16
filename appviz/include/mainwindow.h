@@ -19,14 +19,14 @@ public:
     explicit MainWindow(int argc, char **argv, QWidget *parent = 0);
     ~MainWindow();
     void ReadSettings();
-	void WriteSettings();
-	void closeEvent(QCloseEvent *event);
-	void showNoMasterMessage();
+    void WriteSettings();
+    void closeEvent(QCloseEvent *event);
+    void showNoMasterMessage();
 
 private slots:
     void on_actionAbout_triggered();
-	void on_button_connect_clicked(bool check);
-	void on_checkbox_use_environment_stateChanged(int state);
+    void on_button_connect_clicked(bool check);
+    void on_checkbox_use_environment_stateChanged(int state);
     void on_playbutton_clicked();
     void updateLoggingView();
     void updateFrame();

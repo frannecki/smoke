@@ -60,6 +60,8 @@ void QNode::imgShowCallback(const sensor_msgs::ImageConstPtr& msg){
         return;
     }
     cv::Mat img = img_bridge_sub->image.clone();
+    cv::resize(img, img, cv::Size(640, 480));
+    //ROS_INFO("(%d, %d)", img.rows, img.cols);
     pixmap = cvMatToQPixmap(img);
     emit imgUpdated();
 }
