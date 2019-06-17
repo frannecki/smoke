@@ -1,7 +1,7 @@
 # smoke
 ROS package for smoke detection and recognition with Turtlebot.
 
-__This package is not complete for performing the task.__
+__This package is not sufficient for performing the task.__
 
 ## Prerequisites
 * ROS kinetic
