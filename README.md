@@ -1,6 +1,8 @@
 # smoke
 ROS package for smoke detection and recognition with Turtlebot.
 
+__This package is not complete for performing the task.__
+
 ## Prerequisites
 * ROS kinetic
 * [darknet](https://github.com/pjreddie/darknet)
@@ -16,7 +18,7 @@ ROS package for smoke detection and recognition with Turtlebot.
    ```
    If you have Qt5 installed, a gui would be built for simple visualization.
 
-   If the first build is not successful, please try again.
+   The first build may not finish successfully. Please try again.
 
 2. Run
    * launch webcam using [usb_cam](https://github.com/ros-drivers/usb_cam).
@@ -68,5 +70,5 @@ ROS package for smoke detection and recognition with Turtlebot.
     test the service '/kinectdev/smoke/smoke_svm'
 
 
-  You can modify the `.launch` file to specify with nodes to run. Also modify the [config file](config/darknet_svm.yml).
+  You can modify the `.launch` file to specify which nodes to run. Also modify the [config file](config/darknet_svm.yml).
   
