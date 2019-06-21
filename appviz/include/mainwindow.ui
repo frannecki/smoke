@@ -119,22 +119,15 @@
    </property>
    <widget class="QMenu" name="menu_File">
     <property name="title">
-     <string>&amp;App</string>
+     <string>&amp;Appviz</string>
     </property>
     <addaction name="action_Preferences"/>
     <addaction name="separator"/>
     <addaction name="actionAbout"/>
-    <addaction name="actionAbout_Qt"/>
     <addaction name="separator"/>
     <addaction name="action_Quit"/>
    </widget>
-   <widget class="QMenu" name="menuAppviz">
-    <property name="title">
-     <string>Appviz</string>
-    </property>
-   </widget>
    <addaction name="menu_File"/>
-   <addaction name="menuAppviz"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dock_status">

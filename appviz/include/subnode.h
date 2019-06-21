@@ -23,8 +23,11 @@
 // CXX standard libraries
 #include <string>
 #include <vector>
+#include <chrono>
 
 #include "cvqtimage.h"
+
+std::string current_std_time();
 
 class QNode : public QThread {
     Q_OBJECT

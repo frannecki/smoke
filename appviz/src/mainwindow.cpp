@@ -12,6 +12,7 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent):
 	ui->tab_manager->setCurrentIndex(0);
     connect(ui->actionAbout_Qt, SIGNAL(triggered(bool)), qApp, SLOT(aboutQt()));
     connect(ui->play_button, SIGNAL(clicked()), this, SLOT(on_playbutton_clicked()));
+    connect(ui->button_connect, SIGNAL(clicked()), this, SLOT(on_button_connect_clicked(bool)));
     connect(&qnode, SIGNAL(rosShutdown()), this, SLOT(close()));
     connect(&qnode, SIGNAL(loggingUpdated()), this, SLOT(updateLoggingView()));
     connect(&qnode, SIGNAL(imgUpdated()), this, SLOT(updateFrame()));
@@ -21,7 +22,7 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent):
     ui->view_image->setPixmap(pmap);
 
     if ( ui->checkbox_remember_settings->isChecked() ) {
-        on_button_connect_clicked(true);
+        ReadSettings();
     }
 }
 
@@ -48,48 +49,50 @@ void MainWindow::updateFrame(){
 }
 
 void MainWindow::on_button_connect_clicked(bool check ) {
-	if ( ui->checkbox_use_environment->isChecked() ) {
-		if ( !qnode.init() ) {
-			showNoMasterMessage();
-		} else {
-			ui->button_connect->setEnabled(false);
-		}
-	} 
-    else {
-		if ( ! qnode.init(ui->line_edit_master->text().toStdString(),
-				   ui->line_edit_host->text().toStdString()) ) {
-			showNoMasterMessage();
-		} 
+    if ( ui->checkbox_use_environment->isChecked() ) {
+    	if ( !qnode.init() ) {
+    	    showNoMasterMessage();
+    	}
         else {
-			ui->button_connect->setEnabled(false);
-			ui->line_edit_master->setReadOnly(true);
-			ui->line_edit_host->setReadOnly(true);
-			ui->line_edit_topic->setReadOnly(true);
-		}
-	}
+            ui->button_connect->setEnabled(false);
+    	}
+    } 
+    else {
+    	if ( ! qnode.init(ui->line_edit_master->text().toStdString(),
+    			   ui->line_edit_host->text().toStdString()) ) 
+        {
+    	    showNoMasterMessage();
+    	} 
+        else {
+    	    ui->button_connect->setEnabled(false);
+    	    ui->line_edit_master->setReadOnly(true);
+    	    ui->line_edit_host->setReadOnly(true);
+    	    ui->line_edit_topic->setReadOnly(true);
+    	}
+    }
 }
 
 void MainWindow::on_checkbox_use_environment_stateChanged(int state) {
-	bool enabled;
-	if ( state == 0 ) {
-		enabled = true;
-	} 
+    bool enabled;
+    if ( state == 0 ) {
+    	enabled = true;
+    } 
     else {
-		enabled = false;
-	}
-	ui->line_edit_master->setEnabled(enabled);
-	ui->line_edit_host->setEnabled(enabled);
+    	enabled = false;
+    }
+    ui->line_edit_master->setEnabled(enabled);
+    ui->line_edit_host->setEnabled(enabled);
 }
 
 void MainWindow::showNoMasterMessage() {
-	QMessageBox msgBox;
-	msgBox.setText("Couldn't find the ros master.");
-	msgBox.exec();
+    QMessageBox msgBox;
+    msgBox.setText("Couldn't find the ros master.");
+    msgBox.exec();
     close();
 }
 
 void MainWindow::on_actionAbout_triggered() {
-    QMessageBox::about(this, tr("About ..."),tr("<h2>PACKAGE_NAME Test Program 0.10</h2><p>Copyright Yujin Robot</p><p>This package needs an about description.</p>"));
+    QMessageBox::about(this, tr("About ..."),tr("<h2>PACKAGE_NAME Test Program 0.10</h2><p>Copyright Frannecki</p><p>This package needs an about description.</p>"));
 }
 
 void MainWindow::ReadSettings() {
@@ -123,6 +126,6 @@ void MainWindow::WriteSettings() {
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-	WriteSettings();
-	QMainWindow::closeEvent(event);
+    WriteSettings();
+    QMainWindow::closeEvent(event);
 }
