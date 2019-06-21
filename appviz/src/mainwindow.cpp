@@ -10,9 +10,6 @@ MainWindow::MainWindow(int argc, char **argv, QWidget *parent):
     ui->setupUi(this);
     setWindowIcon(QIcon(":/images/icon.png"));
 	ui->tab_manager->setCurrentIndex(0);
-    connect(ui->actionAbout_Qt, SIGNAL(triggered(bool)), qApp, SLOT(aboutQt()));
-    connect(ui->play_button, SIGNAL(clicked()), this, SLOT(on_playbutton_clicked()));
-    connect(ui->button_connect, SIGNAL(clicked()), this, SLOT(on_button_connect_clicked(bool)));
     connect(&qnode, SIGNAL(rosShutdown()), this, SLOT(close()));
     connect(&qnode, SIGNAL(loggingUpdated()), this, SLOT(updateLoggingView()));
     connect(&qnode, SIGNAL(imgUpdated()), this, SLOT(updateFrame()));
@@ -30,11 +27,11 @@ MainWindow::~MainWindow(){
     delete ui;
 }
 
-void MainWindow::on_playbutton_clicked(){
+void MainWindow::on_button_play_clicked(){
     showImage = !showImage;
-    if(showImage)  ui->play_button->setText("Stop");
+    if(showImage)  ui->button_play->setText("Stop");
     else{
-        ui->play_button->setText("Play");
+        ui->button_play->setText("Play");
         ui->view_image->setPixmap(pmap);
     }
 }
@@ -92,7 +89,7 @@ void MainWindow::showNoMasterMessage() {
 }
 
 void MainWindow::on_actionAbout_triggered() {
-    QMessageBox::about(this, tr("About ..."),tr("<h2>PACKAGE_NAME Test Program 0.10</h2><p>Copyright Frannecki</p><p>This package needs an about description.</p>"));
+    QMessageBox::about(this, tr("About"),tr("<h2>Smoke Package Test Program 0.1</h2><p>Copyright 2019 frannecki</p>"));
 }
 
 void MainWindow::ReadSettings() {

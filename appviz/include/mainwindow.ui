@@ -34,7 +34,7 @@
        <locale language="English" country="UnitedStates"/>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_status">
        <attribute name="title">
@@ -93,7 +93,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QPushButton" name="play_button">
+            <widget class="QPushButton" name="button_play">
              <property name="text">
               <string>Play</string>
              </property>
