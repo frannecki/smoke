@@ -89,7 +89,7 @@ void MainWindow::showNoMasterMessage() {
 }
 
 void MainWindow::on_actionAbout_triggered() {
-    QMessageBox::about(this, tr("About"),tr("<h2>Smoke Package Test Program 0.1</h2><p>Copyright 2019 frannecki</p>"));
+    QMessageBox::about(this, tr("About"),tr("<h2>Smoke Package Test Program 0.1</h2><p>&copy; 2019 frannecki</p>"));
 }
 
 void MainWindow::ReadSettings() {
