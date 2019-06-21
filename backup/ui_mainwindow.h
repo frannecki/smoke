@@ -57,10 +57,9 @@ public:
     QVBoxLayout *verticalLayout_4;
     QLabel *view_image;
     QSpacerItem *verticalSpacer_image;
-    QPushButton *play_button;
+    QPushButton *button_play;
     QMenuBar *menubar;
     QMenu *menu_File;
-    QMenu *menuAppviz;
     QStatusBar *statusbar;
     QDockWidget *dock_status;
     QWidget *dockWidgetContents_2;
@@ -147,10 +146,10 @@ public:
 
         verticalLayout_4->addItem(verticalSpacer_image);
 
-        play_button = new QPushButton(groupBox_image);
-        play_button->setObjectName(QStringLiteral("play_button"));
+        button_play = new QPushButton(groupBox_image);
+        button_play->setObjectName(QStringLiteral("button_play"));
 
-        verticalLayout_4->addWidget(play_button);
+        verticalLayout_4->addWidget(button_play);
 
 
         horizontalLayout->addWidget(groupBox_image);
@@ -165,8 +164,6 @@ public:
         menubar->setGeometry(QRect(0, 0, 1273, 36));
         menu_File = new QMenu(menubar);
         menu_File->setObjectName(QStringLiteral("menu_File"));
-        menuAppviz = new QMenu(menubar);
-        menuAppviz->setObjectName(QStringLiteral("menuAppviz"));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QStringLiteral("statusbar"));
@@ -281,11 +278,9 @@ public:
         MainWindow->addDockWidget(static_cast<Qt::DockWidgetArea>(2), dock_status);
 
         menubar->addAction(menu_File->menuAction());
-        menubar->addAction(menuAppviz->menuAction());
         menu_File->addAction(action_Preferences);
         menu_File->addSeparator();
         menu_File->addAction(actionAbout);
-        menu_File->addAction(actionAbout_Qt);
         menu_File->addSeparator();
         menu_File->addAction(action_Quit);
 
@@ -307,14 +302,13 @@ public:
         action_Preferences->setText(QApplication::translate("MainWindow", "&Preferences", 0));
         actionAbout->setText(QApplication::translate("MainWindow", "&About", 0));
         actionAbout_Qt->setText(QApplication::translate("MainWindow", "About &Qt", 0));
-        groupBox_alarm->setTitle(QApplication::translate("MainWindow", "Logging", 0));
+        groupBox_alarm->setTitle(QApplication::translate("MainWindow", "logging view", 0));
         tab_manager->setTabText(tab_manager->indexOf(tab_status), QApplication::translate("MainWindow", "View Alarms", 0));
         groupBox_image->setTitle(QApplication::translate("MainWindow", "detection image", 0));
         view_image->setText(QApplication::translate("MainWindow", "TextLabel (shows images)", 0));
-        play_button->setText(QApplication::translate("MainWindow", "Play", 0));
+        button_play->setText(QApplication::translate("MainWindow", "Play", 0));
         tab_manager->setTabText(tab_manager->indexOf(tab), QApplication::translate("MainWindow", "View Images", 0));
-        menu_File->setTitle(QApplication::translate("MainWindow", "&App", 0));
-        menuAppviz->setTitle(QApplication::translate("MainWindow", "Appviz", 0));
+        menu_File->setTitle(QApplication::translate("MainWindow", "&Appviz", 0));
         dock_status->setWindowTitle(QApplication::translate("MainWindow", "Command Panel", 0));
         groupBox->setTitle(QApplication::translate("MainWindow", "Ros Master", 0));
         label->setText(QApplication::translate("MainWindow", "Ros Master Url", 0));
