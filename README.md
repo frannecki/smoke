@@ -16,9 +16,10 @@ __This package is not sufficient for performing the task.__
    ```
    catkin_make -DCATKIN_WHITELIST_PACKAGES="smoke"
    ```
-   If you have Qt5 installed, a gui would be built for simple visualization.
+   If you have Qt5 installed, a gui would be built for simple visualization (as follows).
+   ![image](doc/Appviz_image.png)
 
-   The first build may not finish successfully. Please try again.
+   The build may not finish once. Please try again.
 
 2. Run
    * launch webcam using [usb_cam](https://github.com/ros-drivers/usb_cam).

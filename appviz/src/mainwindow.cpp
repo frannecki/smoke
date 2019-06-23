@@ -27,6 +27,10 @@ MainWindow::~MainWindow(){
     delete ui;
 }
 
+void MainWindow::on_checkbox_remember_settings_stateChanged(int state){
+    if(state == 1)  ReadSettings();
+}
+
 void MainWindow::on_button_play_clicked(){
     showImage = !showImage;
     if(showImage)  ui->button_play->setText("Stop");
@@ -101,7 +105,7 @@ void MainWindow::ReadSettings() {
     ui->line_edit_master->setText(master_url);
     ui->line_edit_host->setText(host_url);
     bool remember = settings.value("remember_settings", false).toBool();
-    ui->checkbox_remember_settings->setChecked(remember);
+    //ui->checkbox_remember_settings->setChecked(remember);
     bool checked = settings.value("use_environment_variables", false).toBool();
     ui->checkbox_use_environment->setChecked(checked);
     if ( checked ) {

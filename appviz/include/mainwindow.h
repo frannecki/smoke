@@ -27,6 +27,7 @@ private slots:
     void on_actionAbout_triggered();
     void on_button_connect_clicked(bool check);
     void on_checkbox_use_environment_stateChanged(int state);
+    void on_checkbox_remember_settings_stateChanged(int state);
     void on_button_play_clicked();
     void updateLoggingView();
     void updateFrame();
